@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.env
+venv/
+node_modules/
+*.log
+*.sqlite3
+*.db
+*.pkl
+*.jsonl
+output/
+logs/
