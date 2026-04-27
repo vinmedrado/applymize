@@ -204,5 +204,5 @@ Analista de Dados & Automação
 
 ## 🔥 Status
 
-🟢 Em evolução — já funcional e pronto para portfólio
+🟢 Em evolução — já funcional
 
