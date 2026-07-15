@@ -1,0 +1,251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --app-bg: #f7f9fc;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f9fbff;
+  --app-border: #dbe5f1;
+  --app-border-strong: #c7d6ea;
+  --app-text: #102033;
+  --app-muted: #61738a;
+  --app-primary: #255f99;
+  --app-primary-strong: #16466f;
+  --app-primary-soft: #eaf3fb;
+  --app-success: #15803d;
+  --app-warning: #b7791f;
+  --app-danger: #b91c1c;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c7d6ea transparent;
+}
+
+html {
+  background: var(--app-bg);
+}
+
+body {
+  margin: 0;
+  min-width: 0;
+  overflow-x: hidden;
+  font-size: 14px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--app-text);
+  background:
+    radial-gradient(circle at top left, rgba(37, 95, 153, 0.08), transparent 30rem),
+    linear-gradient(180deg, #fbfdff 0%, var(--app-bg) 38%, #f6f8fb 100%);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .app-shell {
+    @apply min-h-screen text-slate-950;
+    background: transparent;
+  }
+
+  .app-sidebar {
+    @apply fixed inset-y-0 left-0 hidden border-r bg-white/90 p-4 backdrop-blur-xl lg:block;
+    width: 15rem;
+    border-color: var(--app-border);
+    box-shadow: 1px 0 0 rgba(15, 23, 42, 0.02);
+  }
+
+  .app-main {
+    @apply min-w-0 lg:pl-60;
+  }
+
+  .app-header {
+    @apply sticky top-0 z-30 border-b bg-white/85 px-4 py-3 backdrop-blur-xl lg:px-5;
+    border-color: var(--app-border);
+  }
+
+  .app-content {
+    @apply mx-auto w-full max-w-[1380px] p-4 lg:p-5;
+  }
+
+  .brand-mark {
+    @apply flex h-10 w-10 items-center justify-center rounded-2xl text-white shadow-sm;
+    background: linear-gradient(135deg, var(--app-primary-strong), var(--app-primary));
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition;
+  }
+
+  .nav-item-active {
+    @apply text-white shadow-sm;
+    background: linear-gradient(135deg, var(--app-primary-strong), var(--app-primary));
+  }
+
+  .nav-item-idle {
+    @apply text-slate-600 hover:text-slate-950;
+  }
+
+  .nav-item-idle:hover {
+    background: var(--app-primary-soft);
+  }
+
+  .page-shell {
+    @apply space-y-5;
+  }
+
+  .page-title {
+    @apply text-2xl font-black tracking-tight text-slate-950;
+  }
+
+  .page-subtitle {
+    @apply mt-1 text-sm text-slate-500;
+  }
+
+  .card {
+    @apply rounded-2xl border bg-white shadow-sm;
+    border-color: var(--app-border);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  }
+
+  .soft-card {
+    @apply rounded-2xl border bg-white/90 shadow-sm;
+    border-color: var(--app-border);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.035);
+  }
+
+  .job-card {
+    @apply rounded-2xl border bg-white p-4 transition;
+    border-color: var(--app-border);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.035);
+  }
+
+  .job-card:hover {
+    border-color: var(--app-border-strong);
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.07);
+    transform: translateY(-1px);
+  }
+
+  .input {
+    @apply w-full rounded-xl border bg-white px-3 py-2 text-sm outline-none transition;
+    border-color: var(--app-border-strong);
+  }
+
+  .input:focus {
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 3px rgba(37, 95, 153, 0.12);
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn text-white;
+    background: linear-gradient(135deg, var(--app-primary-strong), var(--app-primary));
+  }
+
+  .btn-primary:hover {
+    filter: brightness(0.95);
+  }
+
+  .btn-secondary {
+    @apply btn border bg-white text-slate-900 hover:bg-slate-50;
+    border-color: var(--app-border-strong);
+  }
+
+  .badge {
+    @apply rounded-full border px-3 py-1 text-xs font-bold;
+    color: var(--app-primary-strong);
+    border-color: #cfe0f3;
+    background: var(--app-primary-soft);
+  }
+
+  .analysis-panel {
+    @apply mt-4 rounded-2xl border p-4;
+    border-color: #d7e4f2;
+    background: linear-gradient(180deg, #fbfdff, #f5f9fd);
+  }
+
+  .analysis-metric {
+    @apply rounded-xl border bg-white p-3;
+    border-color: var(--app-border);
+  }
+
+  .action-rail {
+    @apply flex shrink-0 flex-wrap gap-2 xl:w-44 xl:flex-col;
+  }
+
+  .section-eyebrow {
+    @apply text-xs font-black uppercase tracking-wide text-slate-500;
+  }
+
+  .premium-hero {
+    @apply relative rounded-[2rem] border shadow-2xl;
+    border-color: rgba(191, 219, 254, 0.35);
+    background:
+      radial-gradient(circle at top right, rgba(56, 189, 248, 0.28), transparent 24rem),
+      radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.24), transparent 26rem),
+      linear-gradient(135deg, #0f172a 0%, #153d63 48%, #0b253f 100%);
+    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.20);
+  }
+
+  .premium-card {
+    @apply rounded-[1.5rem] border bg-white/95 shadow-sm backdrop-blur;
+    border-color: var(--app-border);
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
+  }
+
+  .premium-card:hover {
+    box-shadow: 0 22px 60px rgba(15, 23, 42, 0.09);
+  }
+
+  .premium-grid-bg {
+    background-image:
+      linear-gradient(rgba(37, 95, 153, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37, 95, 153, 0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .glass-card {
+    @apply rounded-[1.5rem] border bg-white/70 shadow-sm backdrop-blur-xl;
+    border-color: rgba(219, 229, 241, 0.80);
+  }
+}
+
+@media (max-width: 1024px) {
+  .app-content {
+    @apply p-4;
+  }
+}
+
+@layer components {
+  .job-card-layout {
+    @apply grid min-w-0 gap-4;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 1280px) {
+    .job-card-layout {
+      grid-template-columns: minmax(0, 1fr) 136px;
+      align-items: start;
+    }
+  }
+
+  .action-rail {
+    @apply grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-1;
+    min-width: 0;
+  }
+
+  .action-rail .btn,
+  .action-rail .btn-primary,
+  .action-rail .btn-secondary {
+    @apply w-full min-w-0 px-2 py-2 text-center text-[12px] leading-tight;
+    white-space: normal;
+    word-break: normal;
+  }
+
+  .pagination-bar {
+    @apply flex flex-col items-start justify-between gap-3 rounded-2xl border bg-white p-4 text-sm font-semibold text-slate-600 shadow-sm sm:flex-row sm:items-center;
+    border-color: var(--app-border);
+  }
+}

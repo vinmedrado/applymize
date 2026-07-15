@@ -1,12 +1,49 @@
+# Python
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
 venv/
+ENV/
+env/
+pip-wheel-metadata/
+build/
+dist/
 node_modules/
-*.log
+*.egg-info/
+
+# Tests / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+test_applymize.db
+*.sqlite
 *.sqlite3
-*.db
-*.pkl
-*.jsonl
-output/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs / runtime
+*.log
 logs/
+tmp/
+.cache/
+/dy
+
+# Docker
+docker-compose.override.yml
+
+# Alembic cache
+migrations/**/__pycache__/

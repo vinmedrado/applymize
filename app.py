@@ -158,7 +158,7 @@ def _init():
     }
     for k,v in defs.items():
         if k not in st.session_state: st.session_state[k]=v
-    
+
     profile = load_profile()
     if profile:
         if st.session_state.cv_data is None:
@@ -613,15 +613,15 @@ def render_jobs():
 
             recentes = filtrar_vagas_recentes(jobs, dias=dias_filtro)
             sem_data = [j for j in jobs if not str(j.get("posted", "")).strip()]
-            
+
             if recentes:
                 jobs = recentes + (sem_data if manter_sem_data else [])
             else:
                 st.warning("Nenhuma vaga passou no filtro de recência. Mantendo resultados encontrados.")
             
-            jobs=remover_duplicadas(jobs)     
+            jobs=remover_duplicadas(jobs)
             st.session_state.jobs_found=jobs
-            
+
         st.success(f"✅ {len(jobs)} vagas prontas ({total_bruto} brutas, {total_unicas} únicas).")
         st.rerun()
     if not st.session_state.jobs_found: return
