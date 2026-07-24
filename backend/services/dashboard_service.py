@@ -14,6 +14,7 @@ from backend.models.radar import JobRadarRun
 from backend.models.user import User
 from backend.services.career_metrics_service import career_score_from_summary, get_score_trend, latest_decisions, upsert_daily_snapshot
 from backend.services.dashboard_cache import get_cache, set_cache
+from backend.services.job_role_relevance import relevant_jobs_for_user
 
 
 def _status_label(status: str) -> str:
@@ -36,7 +37,10 @@ def dashboard_summary(db: Session, tenant_id: int, user: User, use_cache: bool =
         if cached:
             return cached
 
-    total_jobs = db.query(func.count(Job.id)).filter(Job.tenant_id == tenant_id).scalar() or 0
+    tenant_jobs = db.query(Job).filter(Job.tenant_id == tenant_id).all()
+    relevant_jobs = relevant_jobs_for_user(db, user, tenant_jobs)
+    relevant_job_ids = [job.id for job in relevant_jobs]
+    total_jobs = len(relevant_jobs)
 
     applications_total = (
         db.query(func.count(Application.id))
@@ -55,32 +59,27 @@ def dashboard_summary(db: Session, tenant_id: int, user: User, use_cache: bool =
 
     ranked_jobs = (
         db.query(func.count(MatchScore.id))
-        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id)
+        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids))
         .scalar()
         or 0
     )
 
     avg_match = (
         db.query(func.avg(MatchScore.score))
-        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id)
+        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids))
         .scalar()
         or 0
     )
 
     high_match_jobs = (
         db.query(func.count(MatchScore.id))
-        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.score >= 78)
+        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids), MatchScore.score >= 78)
         .scalar()
         or 0
     )
 
     last_7_days = datetime.utcnow() - timedelta(days=7)
-    new_jobs_7d = (
-        db.query(func.count(Job.id))
-        .filter(Job.tenant_id == tenant_id, Job.created_at >= last_7_days)
-        .scalar()
-        or 0
-    )
+    new_jobs_7d = sum(1 for job in relevant_jobs if job.created_at and job.created_at >= last_7_days)
 
     latest_radar = (
         db.query(JobRadarRun)
@@ -99,20 +98,13 @@ def dashboard_summary(db: Session, tenant_id: int, user: User, use_cache: bool =
     response_count = sum(status_counts.get(s, 0) for s in ["interview", "technical_test", "offer"])
     response_rate = round((response_count / max(applications_total, 1)) * 100, 2)
 
-    source_rows = (
-        db.query(Job.source, func.count(Job.id))
-        .filter(Job.tenant_id == tenant_id)
-        .group_by(Job.source)
-        .order_by(func.count(Job.id).desc())
-        .limit(8)
-        .all()
-    )
+    source_rows = Counter(job.source or "manual" for job in relevant_jobs).most_common(8)
 
     score_buckets = [
-        {"label": "90+", "count": db.query(func.count(MatchScore.id)).filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.score >= 90).scalar() or 0},
-        {"label": "78-89", "count": db.query(func.count(MatchScore.id)).filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.score >= 78, MatchScore.score < 90).scalar() or 0},
-        {"label": "58-77", "count": db.query(func.count(MatchScore.id)).filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.score >= 58, MatchScore.score < 78).scalar() or 0},
-        {"label": "0-57", "count": db.query(func.count(MatchScore.id)).filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.score < 58).scalar() or 0},
+        {"label": "90+", "count": db.query(func.count(MatchScore.id)).filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids), MatchScore.score >= 90).scalar() or 0},
+        {"label": "78-89", "count": db.query(func.count(MatchScore.id)).filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids), MatchScore.score >= 78, MatchScore.score < 90).scalar() or 0},
+        {"label": "58-77", "count": db.query(func.count(MatchScore.id)).filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids), MatchScore.score >= 58, MatchScore.score < 78).scalar() or 0},
+        {"label": "0-57", "count": db.query(func.count(MatchScore.id)).filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids), MatchScore.score < 58).scalar() or 0},
     ]
 
     result = {

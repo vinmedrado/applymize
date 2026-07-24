@@ -7,9 +7,11 @@ import { useToast } from "../context/ToastContext";
 import { getApiError } from "../services/api";
 import { addSkill, getModernResumeHtml, getProfile, parseResume, updateProfile, uploadResume } from "../services/profile";
 import { UserProfile } from "../types";
+import { useAuth } from "../context/AuthContext";
 
 export function Profile() {
   const toast = useToast();
+  const { reloadUser } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [skill, setSkill] = useState("");
@@ -29,7 +31,11 @@ export function Profile() {
   async function save(event: FormEvent) {
     event.preventDefault();
     if (!profile) return;
-    try { setProfile(await updateProfile({ ...profile, job_cities: profile.job_all_cities ? [] : profile.job_cities })); toast.success("Perfil salvo"); }
+    try {
+      setProfile(await updateProfile({ ...profile, job_cities: profile.job_all_cities ? [] : profile.job_cities }));
+      await reloadUser();
+      toast.success("Perfil salvo");
+    }
     catch (err) { toast.error("Erro ao salvar", getApiError(err)); }
   }
 

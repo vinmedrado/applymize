@@ -75,7 +75,7 @@ def test_approve_skip_mark_applied(client, auth_headers):
 
 
 def test_skip(client, auth_headers):
-    create_job(client, auth_headers, "Analista de Dados SQL", "Python, SQL, Power BI", True)
+    create_job(client, auth_headers, "Backend Python SQL", "Python, SQL, FastAPI", True)
 
     build = client.post("/api/application-agent/build-queue", headers=auth_headers, json={"limit": 5})
     assert build.status_code == 200

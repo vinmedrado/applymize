@@ -35,6 +35,8 @@ export type Job = {
   salary_max: number;
   remote: boolean;
   created_at: string;
+  role_relevance_score?: number | null;
+  role_relevance_reason?: string | null;
 };
 
 export type Application = {
@@ -103,6 +105,7 @@ export type StrategyFactors = {
   location_score: number;
   remote_score: number;
   seniority_score: number;
+  role_relevance_score: number;
 };
 
 export type StrategyRecommendation = {
@@ -277,6 +280,8 @@ export type AutomationStatus = {
   times: string[] | null;
   window_start: string | null;
   window_end: string | null;
+  search_terms: string[];
+  min_role_relevance: number;
   last_run: string | null;
   next_run_estimate: string | null;
   total_notifications_sent: number;
@@ -290,4 +295,6 @@ export type AutomationSettingsPayload = {
   times: string[] | null;
   window_start: string | null;
   window_end: string | null;
+  search_terms: string[] | null;
+  min_role_relevance: number;
 };

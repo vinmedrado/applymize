@@ -190,6 +190,26 @@ def is_foreign_linkedin_job(job: Any) -> bool:
     return bool(linkedin_foreign_blockers(job))
 
 
+_NON_LINKEDIN_FOREIGN_LOCATION_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("foreign_united_states", re.compile(r"\b(united\s+states|usa|u\.?s\.?)\b", re.IGNORECASE)),
+    ("foreign_canada", re.compile(r"\bcanada\b", re.IGNORECASE)),
+    ("foreign_peru", re.compile(r"\b(peru|peru)\b", re.IGNORECASE)),
+    ("foreign_united_kingdom", re.compile(r"\b(united\s+kingdom|uk|england|scotland)\b", re.IGNORECASE)),
+    ("foreign_india", re.compile(r"\bindia\b", re.IGNORECASE)),
+    ("foreign_saudi_arabia", re.compile(r"\b(saudi\s+arabia|arabia\s+saudita)\b", re.IGNORECASE)),
+)
+
+
+def foreign_location_blockers(job: Any) -> list[str]:
+    """Block jobs explicitly tied to another country for the Brazil-focused MVP."""
+    if _is_linkedin_source(job):
+        return linkedin_foreign_blockers(job)
+    location = _normalize(_job_value(job, "location"))
+    if not location or any(marker in location for marker in ("brasil", "brazil")):
+        return []
+    return [code for code, pattern in _NON_LINKEDIN_FOREIGN_LOCATION_PATTERNS if pattern.search(location)]
+
+
 def evaluate_job_eligibility(job: Any) -> dict[str, Any]:
     """Evaluate if a job can be sent automatically to the user.
 
@@ -202,16 +222,16 @@ def evaluate_job_eligibility(job: Any) -> dict[str, Any]:
     warnings: list[str] = []
     penalty = 0
 
-    foreign_linkedin_blockers = linkedin_foreign_blockers(job)
-    if foreign_linkedin_blockers:
-        blockers.extend(foreign_linkedin_blockers)
+    location_blockers = foreign_location_blockers(job)
+    if location_blockers:
+        blockers.extend(location_blockers)
         logger.info(
             "linkedin_job_blocked_foreign_location job_id=%s source=%s location=%s url=%s blockers=%s",
             _job_value(job, "id"),
             _job_value(job, "source"),
             _job_value(job, "location"),
             _job_value(job, "url"),
-            foreign_linkedin_blockers,
+            location_blockers,
         )
 
     for blocker_code, phrases in _BLOCKING_RULES:

@@ -6,6 +6,7 @@ from backend.middlewares.auth import AuthContext, get_auth_context
 from backend.models.job import Job
 from backend.schemas.matching import MatchScoreOut, RankOut
 from backend.services.matching_engine import serialize_match, upsert_match_score
+from backend.services.job_role_relevance import relevant_jobs_for_user
 
 router = APIRouter(prefix="/api/matching", tags=["matching"])
 
@@ -21,13 +22,14 @@ def score_job(job_id: int, db: Session = Depends(get_db), ctx: AuthContext = Dep
 
 @router.post("/rank", response_model=list[RankOut])
 def rank_jobs(limit: int = Query(25, ge=1, le=200), db: Session = Depends(get_db), ctx: AuthContext = Depends(get_auth_context)):
-    jobs = (
+    candidates = (
         db.query(Job)
         .filter(Job.tenant_id == ctx.tenant_id)
         .order_by(Job.created_at.desc())
-        .limit(limit)
+        .limit(max(limit * 20, 500))
         .all()
     )
+    jobs = relevant_jobs_for_user(db, ctx.user, candidates)[:limit]
     ranked = []
     for job in jobs:
         score = upsert_match_score(db, ctx.tenant_id, ctx.user, job)

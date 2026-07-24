@@ -90,7 +90,7 @@ def extract_job_skills(job: Job) -> tuple[list[str], list[str]]:
 
 def score_skill_group(user_skills: list[str], group: list[str]) -> tuple[float, list[str], list[str]]:
     if not group:
-        return 100.0, [], []
+        return 50.0, [], []
     user_norm = {normalize_text(s): s for s in user_skills}
     user_tokens = set(tokenize(" ".join(user_skills)))
     matched, missing = [], []
@@ -98,7 +98,7 @@ def score_skill_group(user_skills: list[str], group: list[str]) -> tuple[float, 
     for skill in group:
         skill_norm = normalize_text(skill)
         skill_tokens = set(tokenize(skill))
-        if skill_norm in user_norm or (skill_tokens and (skill_tokens.issubset(user_tokens) or any(t in user_tokens for t in skill_tokens))):
+        if skill_norm in user_norm or (skill_tokens and skill_tokens.issubset(user_tokens)):
             matched.append(skill)
         else:
             missing.append(skill)

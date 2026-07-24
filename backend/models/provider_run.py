@@ -14,6 +14,7 @@ class ProviderRun(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), index=True, nullable=False)
     provider: Mapped[str] = mapped_column(String(80), index=True, nullable=False)
+    search_term: Mapped[str] = mapped_column(String(255), default="", nullable=False)
     status: Mapped[str] = mapped_column(String(40), default="running", nullable=False)
     requested_limit: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     collected: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

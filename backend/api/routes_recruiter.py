@@ -7,6 +7,7 @@ from backend.core.database import get_db
 from backend.middlewares.auth import AuthContext, get_auth_context
 from backend.models.application import Application
 from backend.models.job import Job
+from backend.services.job_role_relevance import relevant_jobs_for_user
 from backend.models.user import User
 
 router = APIRouter(prefix="/api/recruiter", tags=["recruiter"])
@@ -15,7 +16,8 @@ PIPELINE = ["saved", "applied", "screening", "interview", "technical", "offer", 
 
 @router.get("/dashboard")
 def recruiter_dashboard(db: Session = Depends(get_db), ctx: AuthContext = Depends(get_auth_context)):
-    jobs = db.query(Job).filter(Job.tenant_id == ctx.tenant_id).order_by(Job.created_at.desc()).limit(8).all()
+    candidates = db.query(Job).filter(Job.tenant_id == ctx.tenant_id).order_by(Job.created_at.desc()).limit(500).all()
+    jobs = relevant_jobs_for_user(db, ctx.user, candidates)[:8]
     applications = db.query(Application).filter(Application.tenant_id == ctx.tenant_id).order_by(Application.updated_at.desc()).limit(50).all()
     users_by_id = {user.id: user for user in db.query(User).filter(User.id.in_([a.user_id for a in applications] or [ctx.user.id])).all()}
     jobs_by_id = {job.id: job for job in jobs}

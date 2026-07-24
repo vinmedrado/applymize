@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, time
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, Time, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, Time, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core.database import Base
@@ -20,6 +20,8 @@ class AutomationSettings(Base):
     times: Mapped[list[Any] | dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     window_start: Mapped[time | None] = mapped_column(Time, nullable=True)
     window_end: Mapped[time | None] = mapped_column(Time, nullable=True)
+    search_terms: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
+    min_role_relevance: Mapped[float] = mapped_column(Float, default=55.0, nullable=False)
     last_run: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 

@@ -4,6 +4,7 @@ import { Search, Trash2 } from "lucide-react";
 import { EmptyState } from "../components/EmptyState";
 import { SkeletonCard, Spinner } from "../components/Loading";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import { getApiError } from "../services/api";
 import { createApplication } from "../services/applications";
 import { deleteJob, ingestJobs, listJobs, listProviders, scoreJob } from "../services/jobs";
@@ -88,6 +89,7 @@ function MatchAnalysisPanel({ score }: { score: MatchScore }) {
 
 export function Jobs() {
   const toast = useToast();
+  const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [scores, setScores] = useState<Record<number, MatchScore>>({});
   const [strategy, setStrategy] = useState<Record<number, StrategyRecommendation>>({});
@@ -96,7 +98,7 @@ export function Jobs() {
   const [ingesting, setIngesting] = useState(false);
   const [provider, setProvider] = useState("all");
   const [providers, setProviders] = useState<Array<{ provider: string; enabled: boolean }>>([]);
-  const [term, setTerm] = useState("Analista de dados");
+  const [term, setTerm] = useState(user?.target_role || "");
   const [stateFilter, setStateFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [workplaceTypes, setWorkplaceTypes] = useState("remote,hybrid,on-site");
@@ -105,14 +107,17 @@ export function Jobs() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(50);
   const [totalJobs, setTotalJobs] = useState(0);
+  const [hiddenIrrelevant, setHiddenIrrelevant] = useState(0);
+  const [includeIrrelevant, setIncludeIrrelevant] = useState(false);
 
   async function load(pageToLoad = page) {
     setLoading(true);
     try {
-      const data = await listJobs(filters.q || undefined, pageToLoad, pageSize);
+      const data = await listJobs(filters.q || undefined, pageToLoad, pageSize, includeIrrelevant);
       setJobs(data.items);
       setTotalJobs(data.total);
-      const strategyData = await getStrategyRecommendations(Math.min(pageToLoad * pageSize, 300)).catch(() => []);
+      setHiddenIrrelevant(data.hiddenIrrelevant);
+      const strategyData = await getStrategyRecommendations(Math.min(pageToLoad * pageSize, 100)).catch(() => []);
       setStrategy(Object.fromEntries(strategyData.map((item) => [item.job_id, item])));
     } catch (err) {
       toast.error("Erro ao carregar vagas", getApiError(err));
@@ -125,6 +130,14 @@ export function Jobs() {
     load(1);
     listProviders().then(setProviders).catch((err) => toast.error("Erro ao carregar providers", getApiError(err)));
   }, []);
+
+  useEffect(() => {
+    if (!term && user?.target_role) setTerm(user.target_role);
+  }, [term, user?.target_role]);
+
+  useEffect(() => {
+    if (!loading) load(1);
+  }, [includeIrrelevant]);
 
   const totalPages = Math.max(1, Math.ceil(totalJobs / pageSize));
 
@@ -296,6 +309,18 @@ export function Jobs() {
           <option value="MEDIUM_PRIORITY">Média prioridade</option>
           <option value="LOW_PRIORITY">Baixa prioridade</option>
         </select>
+        <label className="flex items-center gap-2 text-sm text-slate-600 md:col-span-5">
+          <input
+            type="checkbox"
+            checked={includeIrrelevant}
+            onChange={(event) => {
+              setIncludeIrrelevant(event.target.checked);
+              setPage(1);
+            }}
+          />
+          Mostrar também vagas fora do cargo-alvo
+          {!includeIrrelevant && hiddenIrrelevant > 0 && <span>({hiddenIrrelevant} ocultadas)</span>}
+        </label>
         <button className="btn-secondary md:col-span-5" onClick={() => { setPage(1); load(1); }}>Atualizar lista</button>
       </div>
 
@@ -314,6 +339,7 @@ export function Jobs() {
                       <h2 className="text-lg font-bold">{job.title}</h2>
                       {job.remote && <span className="badge">Remoto</span>}
                       {strategyItem && <StrategyBadge priority={strategyItem.priority} score={strategyItem.strategy_score} />}
+                      {job.role_relevance_score != null && <span className="badge">Aderência {Math.round(job.role_relevance_score)}%</span>}
                     </div>
                     <div className="mt-2"><JobSourceBadge source={job.source} /></div>
                     <p className="mt-2 text-slate-500">{job.company} • {job.location || "Local não informado"}</p>

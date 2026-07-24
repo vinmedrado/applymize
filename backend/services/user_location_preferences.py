@@ -82,9 +82,10 @@ class JobSearchLocationPreference:
             return "on-site"
         return ""
 
-    def to_provider_options(self, base: dict[str, Any] | None = None) -> dict[str, Any]:
+    def to_provider_options(self, base: dict[str, Any] | None = None, default_term: str | None = None) -> dict[str, Any]:
         options = dict(base or {})
-        options.setdefault("term", settings.automation_default_term)
+        if default_term:
+            options.setdefault("term", default_term)
         options.setdefault("country", self.provider_country)
         options.setdefault("state", self.state_code or self.state)
         options.setdefault("state_name", self.state)

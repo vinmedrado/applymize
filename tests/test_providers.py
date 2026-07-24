@@ -102,7 +102,10 @@ def test_ingest_all(client, auth_headers):
          patch("backend.services.providers.infojobs.InfoJobsProvider.fetch_jobs", return_value=[]):
         response = client.post("/api/jobs/ingest?provider=all&limit=1", headers=auth_headers)
         assert response.status_code == 200, response.text
-        assert response.json()["inserted"] == 3
+        # The authenticated test user targets Backend Python. Provider noise
+        # from unrelated Data/BI searches must be discarded before storage.
+        assert response.json()["inserted"] == 1
+        assert response.json()["jobs"][0]["title"] == "Backend Python"
         assert response.json()["collected_by_provider"]["remoteok"] == 1
-        assert response.json()["collected_by_provider"]["gupy"] == 1
-        assert response.json()["collected_by_provider"]["vagas"] == 1
+        assert response.json()["collected_by_provider"]["gupy"] == 0
+        assert response.json()["collected_by_provider"]["vagas"] == 0

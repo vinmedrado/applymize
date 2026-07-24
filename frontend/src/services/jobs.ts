@@ -6,17 +6,19 @@ export type JobsPage = {
   total: number;
   page: number;
   pageSize: number;
+  hiddenIrrelevant: number;
 };
 
-export async function listJobs(q?: string, page = 1, pageSize = 50): Promise<JobsPage> {
-  const params: Record<string, string | number> = { page, page_size: pageSize };
+export async function listJobs(q?: string, page = 1, pageSize = 50, includeIrrelevant = false): Promise<JobsPage> {
+  const params: Record<string, string | number | boolean> = { page, page_size: pageSize, include_irrelevant: includeIrrelevant };
   if (q) params.q = q;
-  const response = await api.get<{ items: Job[]; total: number; page: number; page_size: number }>("/api/jobs/paged", { params });
+  const response = await api.get<{ items: Job[]; total: number; page: number; page_size: number; hidden_irrelevant: number }>("/api/jobs/paged", { params });
   return {
     items: response.data.items,
     total: response.data.total,
     page: response.data.page,
     pageSize: response.data.page_size,
+    hiddenIrrelevant: response.data.hidden_irrelevant || 0,
   };
 }
 

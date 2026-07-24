@@ -8,10 +8,15 @@ from backend.models.job import Job
 from backend.models.match_score import MatchScore
 from backend.models.user import User
 from backend.services.career_metrics_service import career_score_from_summary, get_score_trend, latest_decisions, upsert_daily_snapshot
+from backend.services.job_role_relevance import relevant_jobs_for_user
+from collections import Counter
 
 
 def overview(db: Session, tenant_id: int, user: User) -> dict:
-    jobs_total = db.query(func.count(Job.id)).filter(Job.tenant_id == tenant_id).scalar() or 0
+    tenant_jobs = db.query(Job).filter(Job.tenant_id == tenant_id).all()
+    relevant_jobs = relevant_jobs_for_user(db, user, tenant_jobs)
+    relevant_job_ids = [job.id for job in relevant_jobs]
+    jobs_total = len(relevant_jobs)
     applications_total = (
         db.query(func.count(Application.id))
         .filter(Application.tenant_id == tenant_id, Application.user_id == user.id)
@@ -20,19 +25,19 @@ def overview(db: Session, tenant_id: int, user: User) -> dict:
     )
     jobs_analyzed = (
         db.query(func.count(MatchScore.id))
-        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id)
+        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids))
         .scalar()
         or 0
     )
     avg_match = (
         db.query(func.avg(MatchScore.score))
-        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id)
+        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids))
         .scalar()
         or 0
     )
     high_match = (
         db.query(func.count(MatchScore.id))
-        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.score >= 78)
+        .filter(MatchScore.tenant_id == tenant_id, MatchScore.user_id == user.id, MatchScore.job_id.in_(relevant_job_ids), MatchScore.score >= 78)
         .scalar()
         or 0
     )
@@ -47,22 +52,8 @@ def overview(db: Session, tenant_id: int, user: User) -> dict:
     response_statuses = {"interview", "technical_test", "offer"}
     response_rate = round((sum(status_counts.get(s, 0) for s in response_statuses) / max(applications_total, 1)) * 100, 2)
 
-    source_rows = (
-        db.query(Job.source, func.count(Job.id))
-        .filter(Job.tenant_id == tenant_id)
-        .group_by(Job.source)
-        .order_by(func.count(Job.id).desc())
-        .limit(8)
-        .all()
-    )
-    role_rows = (
-        db.query(Job.title, func.count(Job.id))
-        .filter(Job.tenant_id == tenant_id)
-        .group_by(Job.title)
-        .order_by(func.count(Job.id).desc())
-        .limit(8)
-        .all()
-    )
+    source_rows = Counter(job.source or "manual" for job in relevant_jobs).most_common(8)
+    role_rows = Counter(job.title or "Sem título" for job in relevant_jobs).most_common(8)
 
     result = {
         "jobs_total": int(jobs_total),

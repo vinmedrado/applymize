@@ -8,6 +8,7 @@ class StrategyFactorsOut(BaseModel):
     location_score: float
     remote_score: float
     seniority_score: float
+    role_relevance_score: float
 
 
 class StrategyRecommendationOut(BaseModel):

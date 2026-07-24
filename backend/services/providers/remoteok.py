@@ -7,6 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from backend.services.providers.base import JobProvider, ProviderJob
+from backend.services.job_role_relevance import evaluate_role_relevance
 
 
 def stable_id(source: str, raw: str) -> str:
@@ -30,6 +31,7 @@ class RemoteOKProvider(JobProvider):
     api_url = "https://remoteok.com/api"
 
     def fetch_jobs(self, limit: int = 25, **kwargs: Any) -> list[ProviderJob]:
+        term = str(kwargs.get("term") or kwargs.get("keywords") or "").strip()
         response = requests.get(
             self.api_url,
             headers={"User-Agent": "ApplymizeCareerBot/1.0"},
@@ -43,8 +45,11 @@ class RemoteOKProvider(JobProvider):
             if not isinstance(item, dict) or not item.get("position"):
                 continue
             normalized = self.normalize_job(item)
-            if normalized:
-                jobs.append(normalized)
+            if not normalized:
+                continue
+            if term and not evaluate_role_relevance(term, normalized, [term]).relevant:
+                continue
+            jobs.append(normalized)
             if len(jobs) >= limit:
                 break
         return jobs

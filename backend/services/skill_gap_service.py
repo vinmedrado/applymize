@@ -5,10 +5,12 @@ from backend.models.job import Job
 from backend.models.user import User
 from backend.services.matching_engine import calculate_match
 from backend.services.profile_service import profile_context_text
+from backend.services.job_role_relevance import relevant_jobs_for_user
 
 
 def skill_gap_roadmap(db: Session, tenant_id: int, user: User, limit: int = 50) -> dict:
-    jobs = db.query(Job).filter(Job.tenant_id == tenant_id).order_by(Job.created_at.desc()).limit(limit).all()
+    candidates = db.query(Job).filter(Job.tenant_id == tenant_id).order_by(Job.created_at.desc()).limit(max(limit * 20, 500)).all()
+    jobs = relevant_jobs_for_user(db, user, candidates)[:limit]
     context = profile_context_text(db, tenant_id, user)
     missing = Counter()
     strong = Counter()

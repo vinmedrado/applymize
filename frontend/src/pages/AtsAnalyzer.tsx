@@ -59,7 +59,7 @@ export function AtsAnalyzer() {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([listJobs().catch(() => ({ items: [], total: 0, page: 1, pageSize: 50 })), analyzeMe().catch(() => null)])
+    Promise.all([listJobs().catch(() => ({ items: [], total: 0, page: 1, pageSize: 50, hiddenIrrelevant: 0 })), analyzeMe().catch(() => null)])
       .then(([jobData, initialAnalysis]) => {
         setJobs(jobData.items);
         if (initialAnalysis) setAnalysis(initialAnalysis);

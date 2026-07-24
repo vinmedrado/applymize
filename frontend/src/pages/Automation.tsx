@@ -15,6 +15,8 @@ type FormState = {
   times: string;
   window_start: string;
   window_end: string;
+  search_terms: string;
+  min_role_relevance: string;
 };
 
 function formatDateTime(value?: string | null) {
@@ -48,6 +50,8 @@ function toForm(status: AutomationStatus): FormState {
     times: (status.times && status.times.length ? status.times : ["08:00", "12:00", "18:00"]).join(", "),
     window_start: status.window_start || "08:00",
     window_end: status.window_end || "18:00",
+    search_terms: (status.search_terms || []).join("\n"),
+    min_role_relevance: String(status.min_role_relevance || 55),
   };
 }
 
@@ -72,6 +76,8 @@ export function Automation() {
     times: "08:00, 12:00, 18:00",
     window_start: "08:00",
     window_end: "18:00",
+    search_terms: "",
+    min_role_relevance: "55",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -114,6 +120,12 @@ export function Automation() {
       if (!validateTime(form.window_start) || !validateTime(form.window_end)) return "Janela deve usar o formato HH:MM.";
     }
 
+    const relevance = Number(form.min_role_relevance);
+    if (!Number.isFinite(relevance) || relevance < 40 || relevance > 95) {
+      return "A aderência mínima deve ficar entre 40% e 95%.";
+    }
+    if (!splitTimes(form.search_terms).length) return "Informe pelo menos um termo de busca.";
+
     return null;
   }, [form]);
 
@@ -130,6 +142,8 @@ export function Automation() {
       times: form.mode === "fixed" ? splitTimes(form.times) : null,
       window_start: form.mode === "window" ? form.window_start : null,
       window_end: form.mode === "window" ? form.window_end : null,
+      search_terms: splitTimes(form.search_terms),
+      min_role_relevance: Number(form.min_role_relevance),
     };
 
     setSaving(true);
@@ -209,6 +223,31 @@ export function Automation() {
               onChange={(e) => setForm((prev) => ({ ...prev, enabled: e.target.checked }))}
             />
           </label>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            <label className="block lg:col-span-2">
+              <span className="mb-1 block text-sm font-bold text-slate-700">Cargos e termos buscados</span>
+              <textarea
+                className="input min-h-36"
+                value={form.search_terms}
+                onChange={(e) => setForm((prev) => ({ ...prev, search_terms: e.target.value }))}
+                placeholder={"Automação de Processos\nAnalista de Processos\nRPA\nPower Automate"}
+              />
+              <p className="mt-1 text-xs text-slate-500">Use uma linha ou vírgula por termo. O primeiro deve representar seu cargo-alvo principal.</p>
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm font-bold text-slate-700">Aderência mínima (%)</span>
+              <input
+                className="input"
+                type="number"
+                min={40}
+                max={95}
+                value={form.min_role_relevance}
+                onChange={(e) => setForm((prev) => ({ ...prev, min_role_relevance: e.target.value }))}
+              />
+              <p className="mt-1 text-xs text-slate-500">Vagas abaixo desse valor não entram nem são enviadas.</p>
+            </label>
+          </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
             <label className="block">

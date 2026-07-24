@@ -18,6 +18,7 @@ from backend.models.user import User
 from backend.models.whatsapp_session import WhatsAppSession
 from backend.services.job_eligibility_filter import evaluate_job_eligibility
 from backend.services.job_ingestion import ingest_jobs
+from backend.services.job_role_relevance import provider_search_terms
 from backend.core.timezone import to_app_timezone_iso
 from backend.services.strategy_engine import StrategyRecommendation, get_strategy_recommendations
 from backend.services.whatsapp_job_alert_service import format_job_whatsapp_message
@@ -43,15 +44,8 @@ def _default_provider() -> str:
     return provider or "all"
 
 
-def _default_provider_options() -> dict[str, Any]:
-    return {
-        "term": getattr(settings, "automation_default_term", "Analista de Dados"),
-        "city": getattr(settings, "automation_default_city", "São Paulo"),
-        "state": getattr(settings, "automation_default_state", "SP"),
-        "country": getattr(settings, "automation_default_country", "Brazil"),
-        "poblacion": getattr(settings, "automation_default_infojobs_city_code", "5211323"),
-        "city_code": getattr(settings, "automation_default_infojobs_city_code", "5211323"),
-    }
+def _provider_options(term: str) -> dict[str, Any]:
+    return {"term": term}
 
 
 def _whatsapp_delay_seconds() -> float:
@@ -274,21 +268,41 @@ def _run_pipeline_for_setting(db: Session, setting: AutomationSettings, now: dat
 
     logger.info("automation_user_due tenant_id=%s user_id=%s mode=%s", tenant_id, user.id, setting.mode)
 
+    search_terms = provider_search_terms(user.target_role, setting.search_terms)
+    if not search_terms:
+        logger.warning("automation_user_skipped tenant_id=%s user_id=%s reason=no_search_terms", tenant_id, user.id)
+        _safe_update_last_run(db, setting, now)
+        return
+
+    inserted = 0
+    skipped = 0
+    collected_by_provider: dict[str, int] = {}
+    errors: dict[str, str] = {}
+    per_term_limit = max(1, (_default_ingest_limit() + len(search_terms) - 1) // len(search_terms))
     try:
-        inserted, skipped, _jobs, collected_by_provider, errors = ingest_jobs(
-            db,
-            tenant_id,
-            source=_default_provider(),
-            limit=_default_ingest_limit(),
-            provider_options=_default_provider_options(),
-            user=user,
-        )
+        for search_term in search_terms:
+            term_inserted, term_skipped, _jobs, term_collected, term_errors = ingest_jobs(
+                db,
+                tenant_id,
+                source=_default_provider(),
+                limit=per_term_limit,
+                provider_options=_provider_options(search_term),
+                user=user,
+                relevance_terms=search_terms,
+                min_role_relevance=float(setting.min_role_relevance or 55.0),
+            )
+            inserted += term_inserted
+            skipped += term_skipped
+            for provider, count in term_collected.items():
+                collected_by_provider[provider] = collected_by_provider.get(provider, 0) + count
+            errors.update({f"{search_term}:{provider}": error for provider, error in term_errors.items()})
         logger.info(
-            "automation_ingest_finished tenant_id=%s user_id=%s provider=%s limit=%s inserted=%s skipped=%s collected=%s errors=%s",
+            "automation_ingest_finished tenant_id=%s user_id=%s provider=%s limit=%s terms=%s inserted=%s skipped=%s collected=%s errors=%s",
             tenant_id,
             user.id,
             _default_provider(),
             _default_ingest_limit(),
+            search_terms,
             inserted,
             skipped,
             collected_by_provider,

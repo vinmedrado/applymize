@@ -55,6 +55,8 @@ class JobOut(BaseModel):
     salary_max: float
     remote: bool
     created_at: datetime
+    role_relevance_score: float | None = None
+    role_relevance_reason: str | None = None
 
     class Config:
         from_attributes = True
@@ -65,6 +67,7 @@ class JobPageOut(BaseModel):
     total: int
     page: int
     page_size: int
+    hidden_irrelevant: int = 0
 
 
 class IngestResult(BaseModel):

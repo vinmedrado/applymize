@@ -11,6 +11,8 @@ from backend.core.config import settings
 from backend.core.logging import get_logger
 from backend.models.job import Job
 from backend.models.user import User
+from backend.models.automation import AutomationSettings
+from backend.services.job_role_relevance import evaluate_role_relevance, role_search_terms
 from backend.services.matching_engine import calculate_match
 from backend.services.profile_service import profile_context_text
 
@@ -25,6 +27,7 @@ class StrategyFactors:
     location_score: float
     remote_score: float
     seniority_score: float
+    role_relevance_score: float = 100.0
 
 
 @dataclass
@@ -41,13 +44,18 @@ class StrategyRecommendation:
 
 
 def strategy_weights() -> dict[str, float]:
-    return {
+    existing = {
         "match_score": settings.strategy_weight_match,
         "recency_score": settings.strategy_weight_recency,
         "competition_score": settings.strategy_weight_competition,
         "location_score": settings.strategy_weight_location,
         "remote_score": settings.strategy_weight_remote,
         "seniority_score": settings.strategy_weight_seniority,
+    }
+    existing_total = sum(existing.values()) or 1.0
+    return {
+        **{key: (value / existing_total) * 0.65 for key, value in existing.items()},
+        "role_relevance_score": 0.35,
     }
 
 GENERIC_TITLES = {
@@ -148,8 +156,20 @@ def recommendation_text(priority: str, factors: StrategyFactors) -> str:
     return "Baixa prioridade. Aplicar apenas se houver tempo ou interesse estratégico."
 
 
-def calculate_strategy_for_job(user: User, job: Job, profile_context: str | None = None) -> StrategyRecommendation:
+def calculate_strategy_for_job(
+    user: User,
+    job: Job,
+    profile_context: str | None = None,
+    search_terms: list[str] | None = None,
+    min_role_relevance: float = 55.0,
+) -> StrategyRecommendation:
     match = calculate_match(user, job, profile_context=profile_context)
+    relevance = evaluate_role_relevance(
+        user.target_role,
+        job,
+        search_terms=search_terms,
+        threshold=min_role_relevance,
+    )
 
     factors = StrategyFactors(
         match_score=match.score,
@@ -158,6 +178,7 @@ def calculate_strategy_for_job(user: User, job: Job, profile_context: str | None
         location_score=location_score(user, job),
         remote_score=remote_score(job),
         seniority_score=match.seniority_score,
+        role_relevance_score=relevance.score,
     )
     score = weighted_score(factors)
 
@@ -183,6 +204,8 @@ def calculate_strategy_for_job(user: User, job: Job, profile_context: str | None
 
     # aplica penalidade
     score = max(score - penalty, 0)
+    if not relevance.relevant:
+        score = min(score, 35.0)
     priority = classify_priority(score)
     explanation = recommendation_text(priority, factors)
 
@@ -213,17 +236,45 @@ def get_strategy_recommendations(db: Session, user_id: int, tenant_id: int, limi
     if not user:
         return []
 
+    automation = (
+        db.query(AutomationSettings)
+        .filter(AutomationSettings.user_id == user_id)
+        .order_by(AutomationSettings.id.desc())
+        .first()
+    )
+    search_terms = role_search_terms(user.target_role, automation.search_terms if automation else None)
+    min_role_relevance = float(automation.min_role_relevance if automation else 55.0)
+
     jobs = (
         db.query(Job)
         .filter(Job.tenant_id == tenant_id)
         .order_by(Job.created_at.desc())
-        .limit(max(limit, 1))
+        .limit(max(limit * 20, 500))
         .all()
     )
 
     context = profile_context_text(db, tenant_id, user)
-    recommendations = [calculate_strategy_for_job(user, job, profile_context=context) for job in jobs]
+    relevant_jobs = [
+        job for job in jobs
+        if job.source == "manual" or evaluate_role_relevance(
+            user.target_role,
+            job,
+            search_terms=search_terms,
+            threshold=min_role_relevance,
+        ).relevant
+    ]
+    recommendations = [
+        calculate_strategy_for_job(
+            user,
+            job,
+            profile_context=context,
+            search_terms=search_terms,
+            min_role_relevance=min_role_relevance,
+        )
+        for job in relevant_jobs
+    ]
     recommendations.sort(key=lambda item: item.strategy_score, reverse=True)
+    recommendations = recommendations[:max(limit, 1)]
 
     logger.info(
         "strategy_recommendations_generated user_id=%s tenant_id=%s analyzed=%s top_jobs=%s",

@@ -4,13 +4,47 @@ from sqlalchemy.orm import Session
 from backend.core.database import get_db
 from backend.middlewares.auth import AuthContext, get_auth_context
 from backend.models.job import Job
+from backend.models.automation import AutomationSettings
 from backend.schemas.job import IngestResult, JobCreate, JobOut, JobPageOut, JobUpdate
 from backend.services.job_ingestion import ingest_jobs
 from backend.services.translation_service import clean_text, normalize_job_text
 from backend.services.dashboard_cache import invalidate_cache
 from backend.services.dashboard_realtime import notify_dashboard_change
+from backend.services.job_role_relevance import RoleRelevance, evaluate_role_relevance, role_search_terms
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
+
+
+def _relevance_preferences(db: Session, ctx: AuthContext) -> tuple[list[str], float]:
+    setting = (
+        db.query(AutomationSettings)
+        .filter(AutomationSettings.user_id == ctx.user.id)
+        .order_by(AutomationSettings.id.desc())
+        .first()
+    )
+    return (
+        role_search_terms(ctx.user.target_role, setting.search_terms if setting else None),
+        float(setting.min_role_relevance if setting else 55.0),
+    )
+
+
+def _personalized_jobs(db: Session, ctx: AuthContext, query, include_irrelevant: bool) -> tuple[list[dict], int]:
+    terms, threshold = _relevance_preferences(db, ctx)
+    rows: list[dict] = []
+    hidden = 0
+    for job in query.order_by(Job.created_at.desc()).all():
+        relevance = evaluate_role_relevance(ctx.user.target_role, job, terms, threshold)
+        if job.source == "manual":
+            relevance = RoleRelevance(100.0, True, relevance.matched_terms, "vaga adicionada manualmente")
+        if not relevance.relevant and not include_irrelevant:
+            hidden += 1
+            continue
+        payload = {column.name: getattr(job, column.name) for column in Job.__table__.columns}
+        payload["role_relevance_score"] = relevance.score
+        payload["role_relevance_reason"] = relevance.reason
+        rows.append(payload)
+    rows.sort(key=lambda item: (item["role_relevance_score"], item["created_at"]), reverse=True)
+    return rows, hidden
 
 
 def normalize_job_payload(data: dict, *, translate: bool = True) -> dict:
@@ -51,6 +85,7 @@ def list_jobs(
     q: str | None = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
+    include_irrelevant: bool = Query(False),
     db: Session = Depends(get_db),
     ctx: AuthContext = Depends(get_auth_context),
 ):
@@ -59,17 +94,15 @@ def list_jobs(
         like = f"%{q}%"
         query = query.filter((Job.title.ilike(like)) | (Job.company.ilike(like)) | (Job.description.ilike(like)))
 
-    total = query.count()
+    items, hidden = _personalized_jobs(db, ctx, query, include_irrelevant)
+    total = len(items)
     response.headers["X-Total-Count"] = str(total)
     response.headers["X-Page"] = str(page)
     response.headers["X-Page-Size"] = str(page_size)
 
-    return (
-        query.order_by(Job.created_at.desc())
-        .offset((page - 1) * page_size)
-        .limit(page_size)
-        .all()
-    )
+    response.headers["X-Hidden-Irrelevant"] = str(hidden)
+    start = (page - 1) * page_size
+    return items[start:start + page_size]
 
 
 @router.get("/paged", response_model=JobPageOut)
@@ -77,6 +110,7 @@ def list_jobs_paged(
     q: str | None = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
+    include_irrelevant: bool = Query(False),
     db: Session = Depends(get_db),
     ctx: AuthContext = Depends(get_auth_context),
 ):
@@ -85,14 +119,16 @@ def list_jobs_paged(
         like = f"%{q}%"
         query = query.filter((Job.title.ilike(like)) | (Job.company.ilike(like)) | (Job.description.ilike(like)))
 
-    total = query.count()
-    items = (
-        query.order_by(Job.created_at.desc())
-        .offset((page - 1) * page_size)
-        .limit(page_size)
-        .all()
+    items, hidden = _personalized_jobs(db, ctx, query, include_irrelevant)
+    total = len(items)
+    start = (page - 1) * page_size
+    return JobPageOut(
+        items=items[start:start + page_size],
+        total=total,
+        page=page,
+        page_size=page_size,
+        hidden_irrelevant=hidden,
     )
-    return JobPageOut(items=items, total=total, page=page, page_size=page_size)
 
 
 @router.get("/{job_id}", response_model=JobOut)

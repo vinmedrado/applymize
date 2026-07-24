@@ -10,6 +10,8 @@ from backend.schemas.profile import EducationCreate, ExperienceCreate, ParseResu
 from backend.services.profile_service import apply_parsed_resume_to_profile, get_or_create_profile, refresh_completeness, save_resume_upload, serialize_profile
 from backend.services.resume_parser import parse_resume_text
 from backend.services.resume_template_service import build_modern_resume_html
+from backend.services.dashboard_cache import invalidate_cache
+from backend.services.dashboard_realtime import notify_dashboard_change
 
 router = APIRouter(prefix="/api/profile", tags=["profile"])
 
@@ -27,7 +29,11 @@ def update_profile(payload: UserProfileUpdate, db: Session = Depends(get_db), ct
         data["job_cities"] = json.dumps(data.get("job_cities") or [], ensure_ascii=False)
     for field, value in data.items():
         setattr(profile, field, value)
+    if payload.professional_title is not None:
+        ctx.user.target_role = payload.professional_title.strip()
     db.commit()
+    invalidate_cache(f"dashboard:summary:{ctx.tenant_id}:{ctx.user.id}")
+    notify_dashboard_change(ctx.tenant_id, ctx.user.id)
     refresh_completeness(db, ctx.tenant_id, ctx.user.id)
     return serialize_profile(db, ctx.tenant_id, ctx.user.id)
 

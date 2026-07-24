@@ -15,6 +15,8 @@ from backend.models.provider_run import ProviderRun
 from backend.services.provider_registry import iter_providers
 from backend.models.user import User
 from backend.services.user_location_preferences import get_user_job_search_location_preference
+from backend.services.job_role_relevance import evaluate_role_relevance
+from backend.services.job_eligibility_filter import evaluate_job_eligibility
 from backend.services.translation_service import normalize_job_text
 
 logger = get_logger(__name__)
@@ -32,7 +34,6 @@ def _provider_options_with_location_defaults(provider_options: dict[str, Any] | 
     from backend.core.config import settings
 
     options = dict(provider_options or {})
-    options.setdefault("term", settings.automation_default_term)
     options.setdefault("city", settings.automation_default_city)
     options.setdefault("state", settings.automation_default_state)
     options.setdefault("country", settings.automation_default_country)
@@ -136,8 +137,14 @@ def _fetch_provider_with_retry(provider, limit: int, provider_options: dict[str,
     raise RuntimeError("; ".join(errors))
 
 
-def _create_provider_run(db: Session, tenant_id: int, provider_name: str, limit: int) -> ProviderRun:
-    run = ProviderRun(tenant_id=tenant_id, provider=provider_name, requested_limit=limit, status="running")
+def _create_provider_run(db: Session, tenant_id: int, provider_name: str, limit: int, search_term: str = "") -> ProviderRun:
+    run = ProviderRun(
+        tenant_id=tenant_id,
+        provider=provider_name,
+        requested_limit=limit,
+        search_term=search_term,
+        status="running",
+    )
     db.add(run)
     db.commit()
     db.refresh(run)
@@ -154,7 +161,16 @@ def _finish_provider_run(db: Session, run: ProviderRun, status: str, collected: 
     db.commit()
 
 
-def ingest_jobs(db: Session, tenant_id: int, source: str = "remoteok", limit: int = 25, provider_options: dict[str, Any] | None = None, user: User | None = None):
+def ingest_jobs(
+    db: Session,
+    tenant_id: int,
+    source: str = "remoteok",
+    limit: int = 25,
+    provider_options: dict[str, Any] | None = None,
+    user: User | None = None,
+    relevance_terms: list[str] | None = None,
+    min_role_relevance: float = 55.0,
+):
     inserted = 0
     skipped = 0
     saved: list[Job] = []
@@ -162,12 +178,24 @@ def ingest_jobs(db: Session, tenant_id: int, source: str = "remoteok", limit: in
     collected_by_provider: dict[str, int] = defaultdict(int)
     provider_options = _provider_options_with_location_defaults(provider_options)
     if user is not None:
-        provider_options = get_user_job_search_location_preference(db, tenant_id, user).to_provider_options(provider_options)
+        provider_options = get_user_job_search_location_preference(db, tenant_id, user).to_provider_options(
+            provider_options,
+            default_term=user.target_role,
+        )
+    elif not provider_options.get("term"):
+        from backend.core.config import settings
+        provider_options["term"] = settings.automation_default_term
     providers = iter_providers(source)
 
     for provider in providers:
         provider_name = provider.provider_name
-        run = _create_provider_run(db, tenant_id, provider_name, limit)
+        run = _create_provider_run(
+            db,
+            tenant_id,
+            provider_name,
+            limit,
+            search_term=str(provider_options.get("term") or ""),
+        )
         if not provider.enabled:
             logger.warning("provider_disabled provider=%s", provider_name)
             errors[provider_name] = "provider disabled"
@@ -184,7 +212,40 @@ def ingest_jobs(db: Session, tenant_id: int, source: str = "remoteok", limit: in
                     continue
                 seen.add(key)
                 unique_provider_jobs.append(provider_job)
+            relevance_target = user.target_role if user is not None else str(provider_options.get("term") or "")
+            effective_terms = relevance_terms or [str(provider_options.get("term") or relevance_target)]
+            relevant_provider_jobs = []
+            for provider_job in unique_provider_jobs:
+                relevance = evaluate_role_relevance(
+                    relevance_target,
+                    provider_job,
+                    search_terms=effective_terms,
+                    threshold=min_role_relevance,
+                )
+                if relevance.relevant:
+                    eligibility = evaluate_job_eligibility(provider_job)
+                    if eligibility.get("eligible", True):
+                        relevant_provider_jobs.append(provider_job)
+                    else:
+                        logger.info(
+                            "provider_job_discarded_ineligible provider=%s title=%s blockers=%s",
+                            provider_name,
+                            provider_job.title,
+                            eligibility.get("blockers", []),
+                        )
+                else:
+                    logger.info(
+                        "provider_job_discarded_irrelevant provider=%s title=%s target_role=%s score=%s reason=%s",
+                        provider_name,
+                        provider_job.title,
+                        relevance_target,
+                        relevance.score,
+                        relevance.reason,
+                    )
+            discarded_irrelevant = len(unique_provider_jobs) - len(relevant_provider_jobs)
+            unique_provider_jobs = relevant_provider_jobs
             collected_by_provider[provider_name] = len(unique_provider_jobs)
+            skipped += discarded_irrelevant
         except Exception as exc:
             logger.warning("provider_ingestion_failed provider=%s error=%s", provider_name, exc)
             errors[provider_name] = str(exc)
@@ -204,7 +265,15 @@ def ingest_jobs(db: Session, tenant_id: int, source: str = "remoteok", limit: in
 
         run_inserted = inserted - before_inserted
         run_skipped = skipped - before_skipped
-        _finish_provider_run(db, run, "success", len(unique_provider_jobs), run_inserted, run_skipped, provider_fetch_errors)
+        _finish_provider_run(
+            db,
+            run,
+            "success",
+            len(unique_provider_jobs),
+            run_inserted,
+            run_skipped + discarded_irrelevant,
+            provider_fetch_errors,
+        )
         logger.info(
             "provider_ingestion_done provider=%s collected=%s inserted=%s skipped=%s",
             provider_name,

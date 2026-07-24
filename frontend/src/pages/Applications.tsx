@@ -28,7 +28,7 @@ export function Applications() {
   async function load() {
     setLoading(true);
     try {
-      const [appsData, jobsData] = await Promise.all([listApplications(), listJobs()]);
+      const [appsData, jobsData] = await Promise.all([listApplications(), listJobs(undefined, 1, 100, true)]);
       setApplications(appsData);
       setJobs(jobsData.items);
     } catch (err) {
