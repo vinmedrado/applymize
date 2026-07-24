@@ -1,38 +1,93 @@
 # Applymize
 
-Sistema de inteligência de carreira: importa vagas de múltiplas fontes, avalia compatibilidade real com o perfil do candidato, analisa o currículo como um ATS faria, e automatiza o acompanhamento das candidaturas.
+Plataforma autoral de inteligência de carreira criada como **portfólio full-stack e ferramenta de uso pessoal**.
 
-Construído como projeto autoral, full-stack: **FastAPI + PostgreSQL** no backend, **React (Vite)** no frontend, orquestrado com **Docker Compose**.
+O projeto reúne descoberta de vagas, filtro de relevância, matching, análise ATS, acompanhamento de candidaturas, automações e alertas em uma experiência construída com **FastAPI, PostgreSQL, React, Vite e Docker Compose**.
 
-## O problema que resolve
+## O que o portfólio demonstra
 
-Buscar vaga manualmente em múltiplos sites tem três fricções: (1) a mesma vaga aparece repetida em fontes diferentes, (2) vagas fora do seu perfil (localização, senioridade, requisitos que você não atende) misturadas com as relevantes, e (3) nenhum feedback real de por que um currículo não passa de triagem automática. O Applymize automatiza as três etapas: ingestão + deduplicação, filtro de elegibilidade, e análise ATS do currículo contra a vaga.
+- Engenharia de produto aplicada a um problema real.
+- Backend multi-tenant com autenticação, migrations e serviços especializados.
+- Ingestão de vagas em múltiplos provedores.
+- Regras explicáveis de relevância, elegibilidade e matching.
+- Processamento de currículo em PDF, DOCX e TXT.
+- Interface responsiva com áreas públicas e autenticadas.
+- Automação agendada e integração pessoal com WhatsApp.
+- Testes de regressão para problemas encontrados em uso real.
 
-## Principais módulos
+O frontend público foi desenhado para permitir que uma pessoa recrutadora entenda o sistema sem precisar acessar o ambiente privado.
 
-- **Ingestão multi-provider** — RemoteOK, Gupy, Vagas.com, JobSpy, LinkedIn e InfoJobs, com deduplicação entre fontes e execuções (`provider_runs`, retry/backoff, logs estruturados)
-- **Filtro de elegibilidade** — bloqueia vagas fora do perfil (localização, escolaridade exigida vs. em andamento, senioridade) antes de chegar ao candidato
-- **Matching Engine** — score de compatibilidade vaga × perfil
-- **ATS/RH Analyzer** — nota de estrutura, palavras-chave, clareza e senioridade do currículo, com e sem uma vaga específica
-- **Application Agent** — fila de candidaturas assistida, com limite diário configurável
-- **Notification Center** — alertas de vagas de alta prioridade via WhatsApp (Evolution API) ou Telegram
-- **Cover Letter / Follow-up Engine** — geração de mensagens de candidatura e acompanhamento
-- **Skill Gap Roadmap** — compara perfil × vagas e prioriza lacunas de skill
+## Experiência pública
 
-## Engenharia — bugs reais corrigidos com teste de regressão
+| Rota | Finalidade |
+|---|---|
+| `/` | Apresentação do projeto e dos recursos |
+| `/como-funciona` | Explicação visual do pipeline e da arquitetura |
+| `/laboratorio-ats` | Experimento ATS real executado no navegador |
+| `/linkedin-analyzer` | Demonstração transparente da análise de LinkedIn |
+| `/demo` | Showcase visual do ecossistema |
+| `/pricing` | Demonstração visual dos planos |
 
-Esse projeto não parou no "funciona na demo". Alguns problemas encontrados em uso real e corrigidos:
+O laboratório ATS aceita PDF, DOCX, TXT ou texto colado, compara o currículo com um cargo ou uma vaga e apresenta estrutura, clareza, experiência, senioridade, palavras-chave e aderência. Todo o processamento dessa página acontece localmente no navegador.
 
-- **Deduplicação falha entre execuções** — o fallback de dedup por título+empresa exigia URL idêntica, o que o tornava inalcançável na prática (URL igual já era pega antes). Vagas re-scrapeadas com URL diferente passavam como novas.
-- **Filtro de vagas fora do Brasil desativado silenciosamente** — a lógica de bloqueio de vagas estrangeiras do LinkedIn existia no código, mas retornava lista vazia sempre.
-- **Filtro de escolaridade bloqueando quem está cursando** — a lista de frases reconhecidas como "exige diploma completo" era estreita demais, e não distinguia "completo obrigatório" de "completo ou cursando".
+## Como o sistema funciona
 
-Os três têm teste de regressão em `tests/test_job_eligibility_filter.py` e `tests/test_job_ingestion_dedup.py`.
+```text
+Currículo + objetivo profissional
+                ↓
+     Descoberta multi-provider
+                ↓
+      Normalização e deduplicação
+                ↓
+Relevância por cargo + elegibilidade
+                ↓
+      Matching e análise ATS/RH
+                ↓
+ Dashboard, candidaturas e alertas
+```
+
+### Descoberta e relevância de vagas
+
+O cargo alvo de cada usuário gera termos de busca próprios. Depois da ingestão, o sistema valida família profissional, título, senioridade, modalidade e localização antes de exibir ou notificar uma oportunidade.
+
+Isso evita, por exemplo, que uma busca por **Automação de Processos** seja preenchida principalmente por vagas genéricas de **Analista de Dados**.
+
+Cada execução preserva o provedor e o termo que originou a descoberta para facilitar auditoria e explicação.
+
+### Principais módulos
+
+- **Ingestão multi-provider** — RemoteOK, Gupy, Vagas.com, JobSpy, LinkedIn e InfoJobs.
+- **Deduplicação** — evita repetição entre provedores e novas execuções.
+- **Filtro de relevância** — valida cargo e família profissional.
+- **Filtro de elegibilidade** — localização, escolaridade, senioridade e requisitos.
+- **Matching Engine** — score de compatibilidade entre vaga e perfil.
+- **ATS/RH Analyzer** — estrutura, palavras-chave, clareza, experiência e senioridade.
+- **Application Agent** — fila assistida de candidaturas.
+- **Notification Center** — alertas pessoais por WhatsApp ou Telegram.
+- **Cover Letter e Follow-up** — mensagens de candidatura e acompanhamento.
+- **Skill Gap Roadmap** — lacunas de competência priorizadas.
+
+## Transparência: real, demonstração e privado
+
+- O **laboratório ATS público** é real, determinístico e processado localmente.
+- A **página Como funciona** representa o pipeline implementado no projeto.
+- O **showcase visual** utiliza dados ilustrativos quando indicado na tela.
+- A **área autenticada** depende do backend local e do banco de dados.
+- O LinkedIn **não é coletado por scraping de URL**. O usuário fornece PDF, DOCX, TXT ou texto.
+- O botão público de WhatsApp abre uma mensagem preenchida; não envia nada automaticamente.
+- Checkout e planos são demonstrações e não processam pagamentos reais.
 
 ## Rodando localmente
 
 ```bash
 cp .env.example .env
+docker compose up -d --build
+```
+
+No Windows PowerShell:
+
+```powershell
+copy .env.example .env
 docker compose up -d --build
 ```
 
@@ -42,23 +97,77 @@ API Docs: http://localhost:8001/docs
 Health:   http://localhost:8001/health
 ```
 
-Seed de demonstração e detalhes operacionais completos (providers, WhatsApp, notificações, troubleshooting): ver [`SETUP.md`](SETUP.md).
+Os containers usam `restart: unless-stopped`. Depois da primeira execução, voltam com o Docker Desktop desde que não tenham sido removidos com `docker compose down`.
 
-Os containers usam `restart: unless-stopped`. Depois da primeira execução, eles voltam automaticamente quando o Docker Desktop inicia, desde que não tenham sido removidos com `docker compose down`.
-No Windows, deixe habilitada também a opção do Docker Desktop para iniciar junto com o sistema.
+Instruções operacionais completas estão em [`SETUP.md`](SETUP.md).
 
-## Testes
+## Frontend público no Netlify
+
+O arquivo [`netlify.toml`](netlify.toml) configura:
+
+- diretório base `frontend`;
+- build `npm run build`;
+- publicação de `frontend/dist`;
+- fallback SPA para rotas diretas;
+- Node.js 22;
+- headers básicos de segurança.
+
+As páginas públicas não precisam do backend. Para conectar também as áreas privadas, configure no Netlify:
+
+```env
+VITE_API_BASE_URL=https://endereco-https-do-backend
+```
+
+## Validação
 
 ```bash
 docker compose exec api pytest -q
+docker compose exec frontend npm run lint
+docker compose exec frontend npm run build
 ```
+
+Na validação mais recente:
+
+- 123 testes de backend aprovados;
+- TypeScript/lint aprovado;
+- build de produção aprovado;
+- auditoria npm sem vulnerabilidades conhecidas;
+- upload e extração de PDF validados no navegador;
+- rotas públicas e responsividade mobile validadas.
+
+## Bugs reais corrigidos
+
+- Deduplicação entre execuções com URLs diferentes.
+- Bloqueio de vagas estrangeiras que estava desativado silenciosamente.
+- Escolaridade em andamento interpretada incorretamente como inelegível.
+- Buscas genéricas retornando famílias profissionais incompatíveis.
+- Automação reutilizando termos antigos em vez do cargo alvo atual.
+- Rankings e métricas contando vagas irrelevantes.
+
+Os testes principais dessas regras estão em:
+
+- `tests/test_job_eligibility_filter.py`
+- `tests/test_job_ingestion_dedup.py`
+- `tests/test_job_role_relevance.py`
 
 ## Stack
 
-Python · FastAPI · PostgreSQL · SQLAlchemy · Alembic · Redis · React · Vite · Docker Compose
+Python · FastAPI · PostgreSQL · SQLAlchemy · Alembic · Redis · React · TypeScript · Vite · Tailwind CSS · Docker Compose · Evolution API
 
-## Escopo de prontidão
+## Estrutura do repositório
 
-O ambiente Docker está preparado para uso local contínuo e demonstração funcional. A camada comercial ainda não deve ser tratada como cobrança real: sem Stripe, o checkout é demonstrativo; com as chaves atuais, a criação de sessão e o webhook ainda precisam ser implementados. Para exposição pública também faltam proxy HTTPS, política de backup, monitoramento externo e uma imagem estática de produção para o frontend.
+```text
+backend/       API, modelos, regras e integrações
+frontend/      aplicação React e experiência pública
+migrations/    migrations Alembic
+tests/         testes automatizados
+scripts/       seed e utilitários operacionais
+docs/          auditorias, decisões e caderno do projeto
+legacy/        protótipo Streamlit preservado
+```
 
-O produto atual é FastAPI + React. O código Streamlit em `app.py`, `run.py`, `core/`, `automation/`, `intelligence/` e `legacy/` é legado e não participa do Docker Compose.
+O produto atual é FastAPI + React. `app.py`, `run.py`, `core/`, `automation/`, `intelligence/` e parte de `legacy/` pertencem ao protótipo anterior e não participam do Docker Compose atual.
+
+## Memória e continuidade
+
+O estado consolidado, decisões, histórico recente e instruções para futuras sessões ficam em [`docs/CADERNO_DO_PROJETO.md`](docs/CADERNO_DO_PROJETO.md).
