@@ -54,7 +54,7 @@ export function Demo() {
             </p>
             <div className="mt-8 flex justify-center gap-3">
               <Link to="/register" className="rounded-2xl bg-white px-6 py-3 text-sm font-black text-slate-950">Criar conta</Link>
-              <Link to="/linkedin-analyzer" className="rounded-2xl border border-white/15 bg-white/10 px-6 py-3 text-sm font-black text-white">Ver LinkedIn showcase</Link>
+              <Link to="/laboratorio-ats" className="rounded-2xl border border-white/15 bg-white/10 px-6 py-3 text-sm font-black text-white">Testar ATS real</Link>
             </div>
           </div>
         </MarketingSection>

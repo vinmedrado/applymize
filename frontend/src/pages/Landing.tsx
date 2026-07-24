@@ -115,8 +115,8 @@ export function Landing() {
           <BrandLogo variant="sidebar" />
           <nav className="hidden items-center gap-6 text-sm font-semibold text-slate-600 md:flex">
             <a href="#recursos">Recursos</a>
-            <a href="#linkedin">LinkedIn</a>
-            <a href="#fit">Applymize Fit</a>
+            <Link to="/como-funciona" className="hover:text-slate-950">Como funciona</Link>
+            <Link to="/laboratorio-ats" className="hover:text-slate-950">Teste ATS</Link>
             <Link to="/demo" className="hover:text-slate-950">Demo</Link>
             <Link to="/pricing" className="hover:text-slate-950">Planos</Link>
           </nav>
@@ -146,9 +146,10 @@ export function Landing() {
                 Criar conta <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
               <Link to="/demo" className="btn-secondary justify-center px-6 py-3 text-base">Ver demonstração</Link>
+              <Link to="/laboratorio-ats" className="btn-secondary justify-center px-6 py-3 text-base">Testar ATS grátis</Link>
             </div>
             <div className="mt-8 grid gap-3 text-sm text-slate-600 sm:grid-cols-3">
-              {["IA protegida por login", "Landing 100% mockada", "ATS + LinkedIn + Fit"].map((item) => (
+              {["IA protegida por login", "ATS público processado localmente", "Matching + LinkedIn + Fit"].map((item) => (
                 <div key={item} className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> {item}</div>
               ))}
             </div>
@@ -172,11 +173,11 @@ export function Landing() {
         <div className="grid items-center gap-8 rounded-[2.25rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/60 lg:grid-cols-[0.9fr_1.1fr] lg:p-10">
           <div>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700"><Linkedin size={24} /></div>
-            <h2 className="text-3xl font-black">LinkedIn Analyzer como showcase, não formulário público.</h2>
+            <h2 className="text-3xl font-black">LinkedIn analisado por conteúdo real, sem scraping enganoso.</h2>
             <p className="mt-4 leading-7 text-slate-600">
-              A página pública mostra uma análise premium já concluída, com scores, insights, before/after e CTA. A análise real fica somente na área privada para proteger tokens e experiência.
+              A página pública mostra o resultado e explica o método. Na área privada, o usuário importa o PDF do perfil ou cola o conteúdo; a URL sozinha não é apresentada como se pudesse ser lida.
             </p>
-            <Link to="/linkedin-analyzer" className="btn-primary mt-6 inline-flex">Ver LinkedIn showcase</Link>
+            <Link to="/linkedin-analyzer" className="btn-primary mt-6 inline-flex">Entender a análise LinkedIn</Link>
           </div>
           <div className="rounded-[2rem] bg-slate-50 p-5">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -217,12 +218,12 @@ export function Landing() {
         <div className="rounded-[2rem] bg-slate-950 p-8 text-white shadow-2xl lg:p-12">
           <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
             <div>
-              <h2 className="text-3xl font-black">Uma primeira impressão de produto premium, com backend real por trás.</h2>
-              <p className="mt-3 max-w-2xl text-slate-300">Landing, demo e LinkedIn público são showcases mockados. Recursos com IA real ficam protegidos no dashboard autenticado.</p>
+              <h2 className="text-3xl font-black">Veja o produto e entenda o motor que existe por trás.</h2>
+              <p className="mt-3 max-w-2xl text-slate-300">A demonstração visual é identificada como mock. O laboratório ATS é real e local; os recursos conectados ao backend ficam protegidos no dashboard.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <Link to="/register" className="rounded-xl bg-white px-5 py-3 text-center font-bold text-slate-950">Criar conta</Link>
-              <Link to="/linkedin-analyzer" className="rounded-xl border border-white/20 px-5 py-3 text-center font-bold text-white">Ver LinkedIn showcase</Link>
+              <Link to="/como-funciona" className="rounded-xl border border-white/20 px-5 py-3 text-center font-bold text-white">Como funciona</Link>
             </div>
           </div>
         </div>

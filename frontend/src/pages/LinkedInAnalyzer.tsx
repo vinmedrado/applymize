@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -19,12 +19,15 @@ import {
   UserRoundCheck,
   Wand2,
   AlertTriangle,
+  FileText,
+  Upload,
 } from "lucide-react";
 import { BrandLogo } from "../components/BrandLogo";
 import { MarketingSection, PublicShell } from "../components/marketing";
 import { analyzeLinkedInProfile, LinkedInAnalysis } from "../services/linkedinAnalyzer";
 import { useAuth } from "../context/AuthContext";
 import { getApiError } from "../services/api";
+import { readDocumentFile } from "../services/browserDocument";
 
 function PremiumBadge({ children }: { children: React.ReactNode }) {
   return (
@@ -103,7 +106,7 @@ function VisualBar({ label, value }: { label: string; value: number }) {
 function PublicLinkedInShowcase() {
   const { isAuthenticated } = useAuth();
   const ctaTo = isAuthenticated ? "/app/linkedin-analyzer" : "/register";
-  const ctaLabel = isAuthenticated ? "Analisar meu perfil real" : "Crie sua conta para analisar seu perfil real com IA";
+  const ctaLabel = isAuthenticated ? "Analisar meu perfil real" : "Crie sua conta para analisar seu perfil real";
 
   return (
     <PublicShell>
@@ -129,13 +132,13 @@ function PublicLinkedInShowcase() {
             <div>
               <div className="mb-5 flex flex-wrap gap-2">
                 <PremiumBadge><Linkedin size={14} /> Showcase público</PremiumBadge>
-                <PremiumBadge><Lock size={14} /> Sem Groq/Ollama</PremiumBadge>
+                <PremiumBadge><Lock size={14} /> Sem scraping de URL</PremiumBadge>
               </div>
               <h1 className="max-w-4xl text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
                 Veja como seu LinkedIn pode ser analisado por uma plataforma inteligente de carreira.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-                Esta página é uma demonstração visual premium. Nenhum dado é solicitado, nenhuma IA real é chamada e nenhum token é consumido no ambiente público.
+                Esta página demonstra o resultado com dados ilustrativos. Na área privada, a análise usa o PDF exportado pelo próprio usuário ou o texto fornecido — nunca finge ler uma URL do LinkedIn.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link to={ctaTo} className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-black text-slate-950 shadow-xl shadow-blue-950/20 transition hover:-translate-y-0.5">
@@ -232,9 +235,9 @@ function PublicLinkedInShowcase() {
           <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
             <div>
               <p className="text-sm font-black uppercase tracking-wide text-blue-200">Análise real protegida</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight">Crie sua conta para analisar seu perfil real com IA.</h2>
+              <h2 className="mt-3 text-3xl font-black tracking-tight">Crie sua conta para analisar o conteúdo real do seu perfil.</h2>
               <p className="mt-3 max-w-2xl text-slate-300">
-                O consumo real de IA só acontece dentro da área autenticada, respeitando usuário, tenant, limites diários e proteção de custos.
+                O conteúdo só é processado dentro da área autenticada, respeitando usuário, tenant e limites de uso.
               </p>
             </div>
             <Link to={ctaTo} className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-black text-slate-950">
@@ -262,9 +265,10 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
 }
 
 export function PrivateLinkedInAnalyzer() {
-  const [linkedinUrl, setLinkedinUrl] = useState("");
   const [targetRole, setTargetRole] = useState("Analista de Dados");
   const [profileText, setProfileText] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [fileLoading, setFileLoading] = useState(false);
   const [analysis, setAnalysis] = useState<LinkedInAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -279,7 +283,7 @@ export function PrivateLinkedInAnalyzer() {
     }
     setLoading(true);
     try {
-      const payload = { linkedin_url: linkedinUrl || undefined, profile_text: profileText, target_role: targetRole || undefined };
+      const payload = { profile_text: profileText, target_role: targetRole || undefined };
       const result = await analyzeLinkedInProfile(payload);
       setAnalysis(result);
     } catch (err) {
@@ -289,30 +293,67 @@ export function PrivateLinkedInAnalyzer() {
     }
   }
 
+  async function handleProfileFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setError("");
+    setAnalysis(null);
+    setFileLoading(true);
+    try {
+      const text = await readDocumentFile(file);
+      setProfileText(text);
+      setFileName(file.name);
+    } catch (err) {
+      setFileName("");
+      setError(err instanceof Error ? err.message : "Não foi possível ler o arquivo.");
+    } finally {
+      setFileLoading(false);
+      event.target.value = "";
+    }
+  }
+
   return (
     <div className="page-shell">
       <div className="flex flex-col justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:flex-row lg:items-center">
         <div>
-          <p className="text-xs font-black uppercase tracking-wide text-blue-700">Análise real · área privada</p>
+          <p className="text-xs font-black uppercase tracking-wide text-blue-700">Análise por conteúdo · área privada</p>
           <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950">LinkedIn Analyzer</h1>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-            Aqui a análise real está liberada para usuário autenticado. O consumo de IA respeita limite diário, tenant e usuário logado.
+            O perfil é analisado somente a partir do arquivo ou texto fornecido pelo usuário autenticado, respeitando tenant e limites de uso.
           </p>
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-900">
-          <Lock className="mr-2 inline h-4 w-4" /> IA real protegida
+          <Lock className="mr-2 inline h-4 w-4" /> Conteúdo protegido
         </div>
       </div>
 
       <form onSubmit={handleAnalyze} className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm lg:p-6">
-          <label className="text-sm font-bold text-slate-700">URL do LinkedIn opcional</label>
-          <input className="input mt-2" placeholder="https://www.linkedin.com/in/seu-perfil" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} />
+          <label className="text-sm font-bold text-slate-700">Importar perfil exportado</label>
+          <label className="mt-2 flex cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 p-5 text-center transition hover:border-blue-400">
+            <input
+              type="file"
+              accept=".pdf,.docx,.txt,application/pdf,text/plain"
+              className="sr-only"
+              onChange={handleProfileFile}
+              disabled={fileLoading}
+            />
+            <span>
+              {fileLoading ? <Loader2 className="mx-auto h-6 w-6 animate-spin text-blue-700" /> : <Upload className="mx-auto h-6 w-6 text-blue-700" />}
+              <span className="mt-2 block text-sm font-black text-slate-900">{fileLoading ? "Lendo arquivo..." : "Selecionar PDF, DOCX ou TXT"}</span>
+              <span className="mt-1 block text-xs text-slate-500">Exporte seu perfil ou use um documento próprio · até 8 MB</span>
+            </span>
+          </label>
+          {fileName && (
+            <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-800">
+              <FileText size={16} /> {fileName}
+            </div>
+          )}
 
           <label className="mt-4 block text-sm font-bold text-slate-700">Cargo alvo</label>
           <input className="input mt-2" placeholder="Analista de Dados" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} />
 
-          <label className="mt-4 block text-sm font-bold text-slate-700">Cole aqui o texto do seu perfil</label>
+          <label className="mt-4 block text-sm font-bold text-slate-700">Ou cole aqui o texto do seu perfil</label>
           <textarea
             className="input mt-2 min-h-[260px] resize-y"
             placeholder="Cole headline, Sobre, experiências, skills e principais informações do LinkedIn..."
@@ -320,16 +361,16 @@ export function PrivateLinkedInAnalyzer() {
             onChange={(e) => setProfileText(e.target.value)}
           />
           {error && <p className="mt-3 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</p>}
-          <button className="btn-primary mt-5 w-full justify-center py-3" disabled={loading}>
+          <button className="btn-primary mt-5 w-full justify-center py-3" disabled={loading || fileLoading}>
             {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Sparkles className="mr-2 h-5 w-5" />} Analisar LinkedIn real
           </button>
         </section>
 
         <section className="rounded-[2rem] border border-slate-200 bg-slate-950 p-5 text-white shadow-xl lg:p-6">
           <p className="text-xs font-black uppercase tracking-wide text-blue-200">Como usar</p>
-          <h2 className="mt-2 text-2xl font-black">Cole seu conteúdo real para receber uma leitura estratégica.</h2>
+          <h2 className="mt-2 text-2xl font-black">Importe ou cole seu conteúdo real para receber uma leitura estratégica.</h2>
           <p className="mt-3 text-sm leading-7 text-slate-300">
-            A URL é opcional. A análise usa o conteúdo fornecido para avaliar headline, Sobre, experiências, palavras-chave, clareza para recrutador e aderência ATS.
+            A análise usa somente o conteúdo que você fornece para avaliar headline, Sobre, experiências, palavras-chave, clareza para recrutador e aderência ATS. Uma URL isolada não é lida.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {[

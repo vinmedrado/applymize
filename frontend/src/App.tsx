@@ -28,6 +28,8 @@ import { Billing } from "./pages/Billing";
 import { AdminAnalytics } from "./pages/AdminAnalytics";
 import { RecruiterPanel } from "./pages/RecruiterPanel";
 import { AdvancedCV } from "./pages/AdvancedCV";
+import { HowItWorks } from "./pages/HowItWorks";
+import { PublicAtsLab } from "./pages/PublicAtsLab";
 
 export default function App() {
   return (
@@ -42,6 +44,8 @@ export default function App() {
             <Route path="/demo" element={<Demo />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/linkedin-analyzer" element={<LinkedInAnalyzer />} />
+            <Route path="/como-funciona" element={<HowItWorks />} />
+            <Route path="/laboratorio-ats" element={<PublicAtsLab />} />
 
             <Route element={<ProtectedRoute />}>
               <Route element={<Layout />}>
