@@ -105,7 +105,7 @@ Adicionada em 27 de julho de 2026 no commit `3e1d101`.
 - modelo padrão de produção `openai/gpt-oss-120b`, hospedado na Groq;
 - raciocínio interno excluído da resposta e saída limitada;
 - validação de método, origem e tamanho;
-- rate limit de uma invocação por IP/domínio em 24 horas;
+- rate limit de uma invocação por IP/domínio a cada 180 segundos, janela máxima permitida pela regra em código da Netlify;
 - resultado salvo somente no navegador do visitante.
 
 Essa função não chama a API FastAPI, não consulta banco e não possui acesso ao perfil ou às integrações pessoais.
@@ -360,7 +360,7 @@ Validação da Applymize IA pública em 27 de julho de 2026, commit `3e1d101`:
 
 - A demo usa dados ilustrativos e estado temporário; ela reproduz os fluxos, mas não executa provedores, banco ou integrações reais.
 - A consulta pública de IA depende da disponibilidade e dos limites da Netlify e da Groq.
-- O crédito não representa identidade verificada: `localStorage` preserva o uso no navegador e o rate limit protege por IP/domínio em 24 horas. Redes corporativas compartilhadas podem dividir o mesmo limite.
+- O crédito não representa identidade verificada: `localStorage` preserva o uso no navegador e o rate limit reduz abuso rápido por IP/domínio em janelas de 180 segundos. Limpar o storage ou trocar de navegador contorna a camada de experiência; não há cadastro público para formar uma identidade forte.
 - Login e dashboard permanecem privados. No Netlify estático, as rotas de autenticação mostram o aviso e encaminham à demo.
 - `/pricing` existe apenas como redirecionamento legado para `/como-funciona`.
 - GitHub ainda não possui workflow próprio de CI; a integração Netlify executa o build do frontend.
