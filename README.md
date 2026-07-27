@@ -4,6 +4,8 @@ Plataforma autoral de inteligência de carreira criada como **portfólio full-st
 
 O projeto reúne descoberta de vagas, filtro de relevância, matching, análise ATS, acompanhamento de candidaturas, automações e alertas em uma experiência construída com **FastAPI, PostgreSQL, React, Vite e Docker Compose**.
 
+**Site público:** [applymize.netlify.app](https://applymize.netlify.app)
+
 ## O que o portfólio demonstra
 
 - Engenharia de produto aplicada a um problema real.
@@ -104,6 +106,8 @@ Instruções operacionais completas estão em [`SETUP.md`](SETUP.md).
 
 ## Frontend público no Netlify
 
+Produção: [https://applymize.netlify.app](https://applymize.netlify.app)
+
 O arquivo [`netlify.toml`](netlify.toml) configura:
 
 - diretório base `frontend`;
@@ -112,6 +116,8 @@ O arquivo [`netlify.toml`](netlify.toml) configura:
 - fallback SPA para rotas diretas;
 - Node.js 22;
 - headers básicos de segurança.
+
+O projeto Netlify está conectado ao repositório `vinmedrado/applymize`; pushes na branch `main` disparam novos builds do frontend.
 
 As páginas públicas não precisam do backend. O deploy de portfólio não deve receber `VITE_API_BASE_URL`; assim, acessos diretos às rotas de autenticação mostram a alternativa segura da demo.
 
@@ -137,7 +143,8 @@ Na validação mais recente:
 - PostCSS atualizado para corrigir a vulnerabilidade de leitura de source map;
 - auditoria npm registra duas ocorrências altas no React Router, ligadas ao modo RSC não utilizado por esta SPA;
 - upload e extração de PDF validados no navegador;
-- rotas públicas e responsividade validadas em Chrome headless.
+- rotas públicas e responsividade validadas em Chrome headless;
+- cinco rotas públicas e headers de segurança validados no domínio de produção.
 
 ## Bugs reais corrigidos
 

@@ -202,6 +202,8 @@ Segredos da Evolution ficam somente no backend.
 
 ## 8. Netlify
 
+Site público: `https://applymize.netlify.app`
+
 O frontend público está preparado pelo `netlify.toml`:
 
 - base `frontend`;
@@ -216,6 +218,16 @@ As páginas públicas funcionam sem backend. No host público, rotas de login, c
 Para usar login e recursos privados em uma hospedagem pública, seria necessário configurar `VITE_API_BASE_URL`. Isso não é necessário para o objetivo atual de portfólio.
 
 Commit principal: `eb16c60 feat: add public ATS lab and product architecture`.
+
+Em 27 de julho de 2026:
+
+- projeto `applymize` criado na conta pessoal Netlify;
+- pasta local vinculada ao projeto;
+- primeiro deploy de produção publicado e inspecionado;
+- build conectado ao repositório público `vinmedrado/applymize`;
+- branch de produção configurada como `main`;
+- webhook GitHub ativo para `push`, `pull_request` e `delete`;
+- backend e variáveis privadas não foram publicados.
 
 ## 9. Validação mais recente
 
@@ -237,7 +249,7 @@ Estado auditado em 27 de julho de 2026 no commit `4a92772`:
 
 Auditoria detalhada: `docs/AUDIT_2026-07-27.md`.
 
-Validação adicional da experiência pública em 27 de julho de 2026, ainda sem commit:
+Validação adicional da experiência pública em 27 de julho de 2026, commit `9ab4d73`:
 
 - demo pública convertida de showcase estático em produto interativo;
 - landing e CTAs realinhados de SaaS comercial para portfólio full-stack;
@@ -249,6 +261,9 @@ Validação adicional da experiência pública em 27 de julho de 2026, ainda sem
 - `/`, `/demo`, `/como-funciona`, `/laboratorio-ats` e `/login` respondendo HTTP 200 no preview;
 - landing, demo e página técnica inspecionadas em Chrome headless;
 - layout responsivo da demo validado em 500 px, largura mínima efetiva do Chrome headless usado.
+- deploy de produção `https://applymize.netlify.app` respondendo HTTP 200 nas cinco rotas críticas;
+- headers `X-Frame-Options`, `X-Content-Type-Options` e `Referrer-Policy` confirmados em produção;
+- descrição, homepage e tópicos públicos do repositório GitHub atualizados.
 
 ## 10. Histórico consolidado
 
@@ -277,7 +292,7 @@ Validação adicional da experiência pública em 27 de julho de 2026, ainda sem
 - LinkedIn sem promessa falsa de scraping;
 - atualização de segurança do React Router.
 
-### 27/07/2026 — demonstração interativa para recrutadores
+### `9ab4d73` — demonstração interativa para recrutadores
 
 - navegação pública orientada à avaliação do portfólio;
 - demo com estado local e ações funcionais;
@@ -286,7 +301,7 @@ Validação adicional da experiência pública em 27 de julho de 2026, ainda sem
 - landing sem cadastro, planos ou promessa de SaaS;
 - lazy loading por rota e metadados públicos;
 - atualização do PostCSS vulnerável;
-- implementação realizada sobre o baseline `4a92772`; commit de entrega ainda não criado.
+- site de produção criado em `https://applymize.netlify.app`.
 
 ## 11. Decisões já tomadas
 
@@ -304,8 +319,7 @@ Validação adicional da experiência pública em 27 de julho de 2026, ainda sem
 - A demo usa dados ilustrativos e estado temporário; ela reproduz os fluxos, mas não executa provedores, banco ou integrações reais.
 - Login e dashboard permanecem privados. No Netlify estático, as rotas de autenticação mostram o aviso e encaminham à demo.
 - `/pricing` existe apenas como redirecionamento legado para `/como-funciona`.
-- O site Applymize ainda não foi criado ou vinculado no Netlify.
-- GitHub ainda não possui CI, homepage, tópicos, URL pública ou apresentação atualizada no campo de descrição.
+- GitHub ainda não possui workflow próprio de CI; a integração Netlify executa o build do frontend.
 - Não há testes automatizados do frontend ou do motor ATS público.
 - O `npm audit` registra duas ocorrências altas do mesmo advisory de CSRF no modo RSC do React Router. A aplicação é uma SPA client-side e não usa RSC/actions; não há versão atual sem conflito com advisories anteriores.
 - A auditoria Python ainda registra dependências vulneráveis que precisam de atualização com regressão de uploads e autenticação.
@@ -322,11 +336,9 @@ Validação adicional da experiência pública em 27 de julho de 2026, ainda sem
 Somente executar mudanças ou publicação com pedido do proprietário:
 
 1. proteger o ambiente local: trocar segredos de exemplo e restringir portas internas;
-2. criar e vincular o site Netlify ao GitHub, sem expor o backend;
-3. validar visualmente o deploy e adicionar a URL ao README e GitHub;
-4. atualizar dependências Python com regressão de uploads e autenticação;
-5. criar CI e testes automatizados do motor ATS público;
-6. corrigir cooldown e eficiência do JobSpy diante de HTTP 429;
+2. atualizar dependências Python com regressão de uploads e autenticação;
+3. criar CI e testes automatizados do motor ATS público;
+4. corrigir cooldown e eficiência do JobSpy diante de HTTP 429;
 9. adicionar SEO, autoria, contato e metadados sociais;
 10. otimizar code splitting e compatibilidade futura.
 

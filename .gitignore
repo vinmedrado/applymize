@@ -12,6 +12,7 @@ pip-wheel-metadata/
 build/
 dist/
 node_modules/
+.netlify/
 *.egg-info/
 
 # Tests / coverage
