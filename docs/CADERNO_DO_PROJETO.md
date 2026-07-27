@@ -227,6 +227,8 @@ Em 27 de julho de 2026:
 - build conectado ao repositório público `vinmedrado/applymize`;
 - branch de produção configurada como `main`;
 - webhook GitHub ativo para `push`, `pull_request` e `delete`;
+- deploy key exclusiva adicionada ao GitHub em modo somente leitura;
+- clone e build remoto limpo aprovados no commit `9cf3b43`;
 - backend e variáveis privadas não foram publicados.
 
 ## 9. Validação mais recente
@@ -264,6 +266,7 @@ Validação adicional da experiência pública em 27 de julho de 2026, commit `9
 - deploy de produção `https://applymize.netlify.app` respondendo HTTP 200 nas cinco rotas críticas;
 - headers `X-Frame-Options`, `X-Content-Type-Options` e `Referrer-Policy` confirmados em produção;
 - descrição, homepage e tópicos públicos do repositório GitHub atualizados.
+- integração contínua GitHub → Netlify validada após correção da deploy key somente leitura.
 
 ## 10. Histórico consolidado
 
