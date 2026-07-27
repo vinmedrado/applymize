@@ -101,7 +101,7 @@ Adicionada em 27 de julho de 2026 no commit `3e1d101`.
 - pergunta livre de até 500 caracteres e sugestões prontas para recrutadores;
 - contexto fixo composto apenas por fatos públicos do projeto;
 - função `frontend/netlify/functions/portfolio-ai.mjs`;
-- chave `GROQ_API_KEY` somente no runtime da Netlify;
+- chave `GROQ_API_KEY` como segredo no ambiente de produção da Netlify, sem prefixo público `VITE_`;
 - modelo padrão de produção `openai/gpt-oss-120b`, hospedado na Groq;
 - raciocínio interno excluído da resposta e saída limitada;
 - validação de método, origem e tamanho;
@@ -292,7 +292,7 @@ Validação da Applymize IA pública em 27 de julho de 2026, commit `3e1d101`:
 - TypeScript/lint aprovado;
 - build Vite de produção aprovado;
 - build Netlify aprovado com empacotamento da função `portfolio-ai.mjs`;
-- segredo `GROQ_API_KEY` configurado somente para functions no contexto de produção;
+- segredo `GROQ_API_KEY` configurado no contexto de produção e mantido fora das variáveis públicas do Vite;
 - `npm audit` permaneceu com as duas ocorrências já documentadas do advisory RSC não utilizado;
 - `git diff --check` aprovado;
 - `docs/prints-sistema/` preservado fora do commit.
@@ -341,7 +341,7 @@ Validação da Applymize IA pública em 27 de julho de 2026, commit `3e1d101`:
 - consulta real por função serverless sem exposição do backend pessoal;
 - contexto limitado a evidências públicas do projeto;
 - um crédito na interface e rate limit na borda;
-- segredo do provedor restrito ao runtime da Netlify;
+- segredo do provedor mantido no ambiente da Netlify e fora do bundle público;
 - explicação visual do fluxo cliente → função → Groq.
 
 ## 11. Decisões já tomadas
