@@ -140,6 +140,7 @@ ${question}
 export const config = {
   path: "/api/portfolio-ai",
   rateLimit: {
+    action: "rate_limit",
     windowLimit: 1,
     windowSize: 86400,
     aggregateBy: ["ip", "domain"],
