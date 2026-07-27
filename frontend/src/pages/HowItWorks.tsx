@@ -3,19 +3,24 @@ import {
   ArrowRight,
   BellRing,
   Bot,
+  Boxes,
   BriefcaseBusiness,
   CheckCircle2,
+  Code2,
   Database,
   FileSearch,
   Filter,
+  Github,
   GitMerge,
   LockKeyhole,
-  MessageCircle,
   Radar,
   SearchCheck,
+  Server,
   ShieldCheck,
   Sparkles,
+  TestTube2,
   UserRoundSearch,
+  Workflow,
 } from "lucide-react";
 import {
   MarketingSection,
@@ -23,6 +28,8 @@ import {
   PublicHeader,
   PublicShell,
 } from "../components/marketing";
+
+const repositoryUrl = "https://github.com/vinmedrado/applymize";
 
 const pipeline = [
   {
@@ -86,12 +93,62 @@ const layers = [
   },
 ];
 
+const stack = [
+  {
+    icon: <Code2 size={22} />,
+    title: "React + TypeScript",
+    detail: "Interface responsiva em Vite, com rotas públicas, área autenticada e demo isolada.",
+    path: "frontend/src",
+  },
+  {
+    icon: <Server size={22} />,
+    title: "FastAPI",
+    detail: "API modular com autenticação, serviços de vagas, ATS, candidaturas e automações.",
+    path: "backend",
+  },
+  {
+    icon: <Boxes size={22} />,
+    title: "PostgreSQL + Redis",
+    detail: "Persistência relacional, migrações Alembic, filas e execução assíncrona.",
+    path: "alembic",
+  },
+  {
+    icon: <Workflow size={22} />,
+    title: "Workers + integrações",
+    detail: "Pipeline de ingestão, agendador e notificações desacoplados da experiência web.",
+    path: "backend/services",
+  },
+];
+
+const evidence = [
+  {
+    label: "ATS público no navegador",
+    path: "frontend/src/services/publicAtsEngine.ts",
+    description: "Motor determinístico que analisa texto localmente e explica o score.",
+  },
+  {
+    label: "Ingestão de vagas",
+    path: "backend/services/job_ingestion.py",
+    description: "Orquestra descoberta, normalização, deduplicação e persistência.",
+  },
+  {
+    label: "Relevância profissional",
+    path: "backend/services/job_role_relevance.py",
+    description: "Evita que termos parecidos desviem a busca para famílias de cargo incorretas.",
+  },
+  {
+    label: "Agendador de automações",
+    path: "backend/services/automation_scheduler.py",
+    description: "Coordena buscas recorrentes e a entrega de resultados relevantes.",
+  },
+];
+
 const truthTable = [
   {
-    status: "Funcional",
+    status: "Funcional no ambiente privado",
     tone: "border-emerald-200 bg-emerald-50 text-emerald-900",
     title: "Plataforma autenticada",
-    description: "Perfil, descoberta de vagas, matching, ATS, candidaturas, automações e alertas conectados ao backend.",
+    description: "Perfil, descoberta de vagas, matching, ATS, candidaturas, automações e alertas conectados ao backend local.",
   },
   {
     status: "Real e local",
@@ -100,10 +157,10 @@ const truthTable = [
     description: "O arquivo é lido e pontuado no navegador. Não chama IA, não exige login e não envia o currículo.",
   },
   {
-    status: "Demonstração",
+    status: "Demonstração interativa",
     tone: "border-amber-200 bg-amber-50 text-amber-900",
-    title: "Showcases públicos",
-    description: "Dashboard e alguns resultados visuais usam dados ilustrativos e são identificados como demonstração.",
+    title: "Experiência para avaliação",
+    description: "Busca, matching, pipeline, perfil e automações usam dados ilustrativos e estado temporário no navegador.",
   },
   {
     status: "Integração futura",
@@ -124,21 +181,26 @@ export function HowItWorks() {
         <MarketingSection className="relative py-20 sm:py-24">
           <div className="max-w-4xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-bold text-blue-100">
-              <Sparkles size={16} /> Por trás do produto
+              <Sparkles size={16} /> Por trás do projeto
             </div>
             <h1 className="mt-6 text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-              Da intenção profissional até a oportunidade certa.
+              Arquitetura, decisões e limites visíveis.
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-              O Applymize não é apenas uma interface. Existe um pipeline que transforma perfil, currículo e preferências em buscas personalizadas, filtros explicáveis, análises e alertas.
+              O Applymize é um portfólio full-stack e uma ferramenta de uso pessoal. Esta página abre a caixa-preta: mostra como perfil, vagas e preferências atravessam o sistema e separa, com clareza, produto real de demonstração pública.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link to="/laboratorio-ats" className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 font-black text-slate-950">
-                Experimentar o ATS <ArrowRight className="ml-2 h-4 w-4" />
+              <Link to="/demo" className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 font-black text-slate-950">
+                Explorar a demo <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-              <Link to="/demo" className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-3 font-black text-white">
-                Ver interface demonstrativa
-              </Link>
+              <a
+                href={repositoryUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-3 font-black text-white"
+              >
+                <Github className="mr-2 h-4 w-4" /> Ver código no GitHub
+              </a>
             </div>
           </div>
         </MarketingSection>
@@ -188,6 +250,52 @@ export function HowItWorks() {
               </article>
             ))}
           </div>
+        </div>
+      </MarketingSection>
+
+      <MarketingSection className="pt-4">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-black uppercase tracking-wide text-blue-700">Implementação</p>
+          <h2 className="mt-3 text-3xl font-black">A stack e as evidências estão abertas</h2>
+          <p className="mt-4 leading-7 text-slate-600">
+            Os cartões abaixo levam diretamente aos pontos do repositório que materializam cada decisão.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {stack.map((item) => (
+            <a
+              key={item.title}
+              href={`${repositoryUrl}/tree/main/${item.path}`}
+              target="_blank"
+              rel="noreferrer"
+              className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg"
+            >
+              <div className="text-blue-700">{item.icon}</div>
+              <h3 className="mt-4 font-black">{item.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{item.detail}</p>
+              <span className="mt-4 inline-flex items-center text-xs font-black text-blue-700">
+                {item.path} <ArrowRight className="ml-1 h-3.5 w-3.5 transition group-hover:translate-x-1" />
+              </span>
+            </a>
+          ))}
+        </div>
+        <div className="mt-6 grid gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 md:grid-cols-2">
+          {evidence.map((item) => (
+            <a
+              key={item.path}
+              href={`${repositoryUrl}/blob/main/${item.path}`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-2xl bg-white p-5 shadow-sm transition hover:ring-2 hover:ring-blue-200"
+            >
+              <div className="flex items-center gap-2 text-blue-700">
+                <TestTube2 size={18} />
+                <span className="font-black">{item.label}</span>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
+              <code className="mt-3 block overflow-hidden text-ellipsis text-xs text-slate-500">{item.path}</code>
+            </a>
+          ))}
         </div>
       </MarketingSection>
 

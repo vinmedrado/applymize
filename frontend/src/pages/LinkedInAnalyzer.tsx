@@ -105,8 +105,8 @@ function VisualBar({ label, value }: { label: string; value: number }) {
 
 function PublicLinkedInShowcase() {
   const { isAuthenticated } = useAuth();
-  const ctaTo = isAuthenticated ? "/app/linkedin-analyzer" : "/register";
-  const ctaLabel = isAuthenticated ? "Analisar meu perfil real" : "Crie sua conta para analisar seu perfil real";
+  const ctaTo = isAuthenticated ? "/app/linkedin-analyzer" : "/demo";
+  const ctaLabel = isAuthenticated ? "Analisar meu perfil real" : "Explorar análise na demo";
 
   return (
     <PublicShell>
@@ -118,7 +118,7 @@ function PublicLinkedInShowcase() {
               <ArrowLeft className="mr-2 inline h-4 w-4" /> Voltar
             </Link>
             <Link to={ctaTo} className="hidden rounded-xl bg-white px-4 py-2 text-sm font-black text-slate-950 sm:inline-flex">
-              {isAuthenticated ? "Análise real" : "Criar conta"}
+              {isAuthenticated ? "Análise real" : "Explorar demo"}
             </Link>
           </div>
         </div>
@@ -234,10 +234,10 @@ function PublicLinkedInShowcase() {
         <div className="rounded-[2.5rem] bg-slate-950 p-8 text-white shadow-2xl lg:p-12">
           <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
             <div>
-              <p className="text-sm font-black uppercase tracking-wide text-blue-200">Análise real protegida</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight">Crie sua conta para analisar o conteúdo real do seu perfil.</h2>
+              <p className="text-sm font-black uppercase tracking-wide text-blue-200">Demonstração segura e transparente</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight">Explore o fluxo sem criar conta ou fornecer dados pessoais.</h2>
               <p className="mt-3 max-w-2xl text-slate-300">
-                O conteúdo só é processado dentro da área autenticada, respeitando usuário, tenant e limites de uso.
+                No ambiente pessoal, o conteúdo real só é processado dentro da área autenticada. No portfólio público, a experiência usa dados ilustrativos.
               </p>
             </div>
             <Link to={ctaTo} className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-black text-slate-950">

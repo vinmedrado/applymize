@@ -1,6 +1,22 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { clearTokens, getAccessToken, getRefreshToken, setTokens } from "./tokenStorage";
 
+export function hasPrivateBackendAccess(): boolean {
+  const configured = String(import.meta.env.VITE_API_BASE_URL || "").trim();
+  if (configured) return true;
+
+  const hostname = window.location.hostname.toLowerCase();
+  return (
+    hostname === "localhost"
+    || hostname === "127.0.0.1"
+    || hostname === "::1"
+    || hostname.endsWith(".local")
+    || hostname.startsWith("10.")
+    || hostname.startsWith("192.168.")
+    || /^172\.(1[6-9]|2\d|3[01])\./.test(hostname)
+  );
+}
+
 export function getApiBaseUrl(): string {
   const configured = String(import.meta.env.VITE_API_BASE_URL || "").trim();
   if (configured) return configured.replace(/\/$/, "");

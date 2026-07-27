@@ -10,6 +10,8 @@ import {
   History,
   Linkedin,
   MessageCircle,
+  Github,
+  Play,
   Radar,
   ShieldCheck,
   Sparkles,
@@ -18,15 +20,15 @@ import {
   Wand2,
 } from "lucide-react";
 import { BrandLogo } from "../components/BrandLogo";
-import { FeatureCard, MarketingSection, PublicShell } from "../components/marketing";
+import { FeatureCard, MarketingSection, PublicFooter, PublicShell } from "../components/marketing";
 
 const features = [
-  { icon: <Bot size={22} />, title: "Applymize IA", description: "Assistente contextual baseado no currículo, perfil, histórico e objetivos profissionais." },
+  { icon: <Bot size={22} />, title: "Applymize IA", description: "Assistente privado baseado no currículo, perfil, histórico e objetivos profissionais." },
   { icon: <ClipboardCheck size={22} />, title: "ATS Analyzer", description: "Score, gaps, palavras-chave e leitura otimizada para sistemas e recrutadores." },
-  { icon: <Linkedin size={22} />, title: "LinkedIn Analyzer", description: "Showcase público premium e análise real protegida apenas na área autenticada." },
+  { icon: <Linkedin size={22} />, title: "LinkedIn Analyzer", description: "Demonstração pública transparente e análise de conteúdo no ambiente privado." },
   { icon: <Users size={22} />, title: "Applymize Fit", description: "Preparação visual para testes Gupy, entrevistas, cultura, comunicação e liderança." },
   { icon: <Target size={22} />, title: "Smart Matching", description: "Priorização de vagas por aderência, localização, senioridade e requisitos reais." },
-  { icon: <MessageCircle size={22} />, title: "WhatsApp Alerts", description: "Alertas automáticos de oportunidades relevantes no canal mais prático para o usuário." },
+  { icon: <MessageCircle size={22} />, title: "WhatsApp Alerts", description: "Integração pessoal e privada para alertas automáticos de oportunidades relevantes." },
   { icon: <Radar size={22} />, title: "Multi-provider Jobs", description: "Centralização de oportunidades de diferentes fontes sem busca manual repetitiva." },
   { icon: <History size={22} />, title: "Histórico IA", description: "Conversas persistentes para entrevistas, currículo, LinkedIn e posicionamento." },
 ];
@@ -115,14 +117,15 @@ export function Landing() {
           <BrandLogo variant="sidebar" />
           <nav className="hidden items-center gap-6 text-sm font-semibold text-slate-600 md:flex">
             <a href="#recursos">Recursos</a>
-            <Link to="/como-funciona" className="hover:text-slate-950">Como funciona</Link>
+            <Link to="/como-funciona" className="hover:text-slate-950">Por trás do projeto</Link>
             <Link to="/laboratorio-ats" className="hover:text-slate-950">Teste ATS</Link>
-            <Link to="/demo" className="hover:text-slate-950">Demo</Link>
-            <Link to="/pricing" className="hover:text-slate-950">Planos</Link>
+            <Link to="/demo" className="hover:text-slate-950">Demo interativa</Link>
           </nav>
           <div className="flex items-center gap-2">
-            <Link to="/login" className="btn-secondary">Entrar</Link>
-            <Link to="/pricing" className="btn-primary hidden sm:inline-flex">Ver planos</Link>
+            <a href="https://github.com/vinmedrado/applymize" target="_blank" rel="noreferrer" className="btn-secondary hidden sm:inline-flex">
+              <Github className="mr-2 h-4 w-4" /> GitHub
+            </a>
+            <Link to="/demo" className="btn-primary"><Play className="mr-2 h-4 w-4" /> Explorar</Link>
           </div>
         </div>
       </header>
@@ -133,23 +136,23 @@ export function Landing() {
         <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="relative z-10">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-800">
-              <Sparkles size={16} /> Career AI + ATS + automação
+              <Sparkles size={16} /> Case full-stack · React + FastAPI + automação
             </div>
             <h1 className="max-w-4xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
               Carreira, ATS e IA trabalhando juntos para acelerar sua evolução profissional.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-              O Applymize combina currículo, LinkedIn, vagas, entrevistas, automações e IA contextual em uma experiência SaaS moderna, visual e profissional.
+              Projeto autoral que combina currículo, vagas, matching, ATS, automações e IA contextual. Explore uma demonstração segura no navegador e entenda a engenharia por trás do produto.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link to="/register" className="btn-primary justify-center px-6 py-3 text-base">
-                Criar conta <ArrowRight className="ml-2 h-5 w-5" />
+              <Link to="/demo" className="btn-primary justify-center px-6 py-3 text-base">
+                Explorar demo interativa <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <Link to="/demo" className="btn-secondary justify-center px-6 py-3 text-base">Ver demonstração</Link>
               <Link to="/laboratorio-ats" className="btn-secondary justify-center px-6 py-3 text-base">Testar ATS grátis</Link>
+              <Link to="/como-funciona" className="btn-secondary justify-center px-6 py-3 text-base">Ver por trás</Link>
             </div>
             <div className="mt-8 grid gap-3 text-sm text-slate-600 sm:grid-cols-3">
-              {["IA protegida por login", "ATS público processado localmente", "Matching + LinkedIn + Fit"].map((item) => (
+              {["Demo sem login ou backend", "ATS real processado localmente", "Código e decisões documentados"].map((item) => (
                 <div key={item} className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> {item}</div>
               ))}
             </div>
@@ -160,9 +163,9 @@ export function Landing() {
 
       <MarketingSection id="recursos" className="pt-8">
         <div className="mx-auto mb-10 max-w-3xl text-center">
-          <p className="text-sm font-black uppercase tracking-wide text-blue-700">Ecossistema premium</p>
+          <p className="text-sm font-black uppercase tracking-wide text-blue-700">Engenharia aplicada a um problema real</p>
           <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Tudo que transforma busca de emprego em estratégia.</h2>
-          <p className="mt-4 text-slate-600">IA, ATS, LinkedIn, matching, automação, WhatsApp e preparação para entrevistas em uma experiência visual de produto real.</p>
+          <p className="mt-4 text-slate-600">IA, ATS, LinkedIn, matching, automação, WhatsApp e preparação para entrevistas em uma arquitetura full-stack funcional.</p>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => <FeatureCard key={feature.title} {...feature} />)}
@@ -222,12 +225,13 @@ export function Landing() {
               <p className="mt-3 max-w-2xl text-slate-300">A demonstração visual é identificada como mock. O laboratório ATS é real e local; os recursos conectados ao backend ficam protegidos no dashboard.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-              <Link to="/register" className="rounded-xl bg-white px-5 py-3 text-center font-bold text-slate-950">Criar conta</Link>
-              <Link to="/como-funciona" className="rounded-xl border border-white/20 px-5 py-3 text-center font-bold text-white">Como funciona</Link>
+              <Link to="/demo" className="rounded-xl bg-white px-5 py-3 text-center font-bold text-slate-950">Explorar demonstração</Link>
+              <Link to="/como-funciona" className="rounded-xl border border-white/20 px-5 py-3 text-center font-bold text-white">Ver por trás do projeto</Link>
             </div>
           </div>
         </div>
       </MarketingSection>
+      <PublicFooter />
     </PublicShell>
   );
 }

@@ -2,7 +2,7 @@
 
 > Fonte de memória permanente para desenvolvimento, auditorias e futuras conversas.
 
-**Última atualização:** 24 de julho de 2026  
+**Última atualização:** 27 de julho de 2026
 **Branch principal:** `main`  
 **Último commit funcional registrado:** `eb16c60`  
 **Natureza do projeto:** portfólio full-stack e ferramenta de uso pessoal  
@@ -74,7 +74,23 @@ Explica para uma pessoa recrutadora:
 5. matching e ATS;
 6. automação e alertas.
 
-A página também informa o que é funcional, local, demonstrativo e futuro.
+A página também informa o que é funcional, local, demonstrativo e futuro. Desde 27 de julho de 2026, funciona como a área **Por trás do projeto**, com stack, decisões de arquitetura e links diretos para arquivos que comprovam a implementação.
+
+### `/demo`
+
+Demonstração pública interativa, sem login e sem backend.
+
+Permite testar no navegador:
+
+- descoberta demonstrativa de vagas;
+- salvar vagas e iniciar uma candidatura;
+- avançar etapas do pipeline;
+- executar o motor ATS público real;
+- otimizar headline e skills de um perfil ilustrativo;
+- ativar, pausar e executar uma automação simulada;
+- simular a conexão do canal de WhatsApp.
+
+Os dados são explicitamente ilustrativos e o estado é descartado ao recarregar a página. A demonstração não acessa banco, contas, provedores ou integrações pessoais.
 
 ### `/laboratorio-ats`
 
@@ -195,7 +211,7 @@ O frontend público está preparado pelo `netlify.toml`:
 - rewrite `/* → /index.html`;
 - headers básicos.
 
-As páginas públicas funcionam sem backend.
+As páginas públicas funcionam sem backend. No host público, rotas de login, cadastro e recuperação de senha exibem um aviso de ambiente privado com acesso à demo e à documentação técnica.
 
 Para usar login e recursos privados em uma hospedagem pública, seria necessário configurar `VITE_API_BASE_URL`. Isso não é necessário para o objetivo atual de portfólio.
 
@@ -203,17 +219,36 @@ Commit principal: `eb16c60 feat: add public ATS lab and product architecture`.
 
 ## 9. Validação mais recente
 
-Estado validado em 24 de julho de 2026:
+Estado auditado em 27 de julho de 2026 no commit `4a92772`:
 
+- `main` local e `origin/main` sincronizadas;
 - 123 testes de backend aprovados;
-- frontend TypeScript/lint aprovado;
+- `pip check`, compilação Python e Alembic head aprovados;
+- frontend TypeScript/lint aprovado com as dependências locais;
 - build Vite de produção aprovado;
-- `npm audit` com zero vulnerabilidades conhecidas;
-- rotas `/`, `/como-funciona`, `/laboratorio-ats` e `/linkedin-analyzer` respondendo diretamente;
-- responsividade mobile inspecionada;
-- fluxo “Usar exemplo → Analisar agora” validado;
-- exemplo de Automação de Processos retornando score ATS coerente;
-- importação e extração de PDF testadas no navegador.
+- rotas públicas, `/health` e `/docs` respondendo HTTP 200;
+- cinco containers ativos e saudáveis;
+- nenhum segredo real encontrado pelos padrões verificados no estado atual e histórico Git;
+- `npm audit` encontrou 3 vulnerabilidades altas em PostCSS e React Router;
+- `pip-audit` encontrou 67 ocorrências em 8 pacotes, nem todas aplicáveis à arquitetura usada;
+- container frontend com volume `node_modules` antigo, embora o build limpo passe;
+- zero workflows de GitHub Actions e zero testes automatizados TypeScript/TSX;
+- site Applymize ainda não existe na conta Netlify autenticada e a pasta não está vinculada.
+
+Auditoria detalhada: `docs/AUDIT_2026-07-27.md`.
+
+Validação adicional da experiência pública em 27 de julho de 2026, ainda sem commit:
+
+- demo pública convertida de showcase estático em produto interativo;
+- landing e CTAs realinhados de SaaS comercial para portfólio full-stack;
+- página Por trás do projeto ampliada com arquitetura e evidências no código;
+- rotas de autenticação protegidas no deploy estático;
+- carregamento das páginas separado por rota;
+- PostCSS atualizado de `8.4.49` para `8.5.23`;
+- TypeScript/lint e build Vite de produção aprovados;
+- `/`, `/demo`, `/como-funciona`, `/laboratorio-ats` e `/login` respondendo HTTP 200 no preview;
+- landing, demo e página técnica inspecionadas em Chrome headless;
+- layout responsivo da demo validado em 500 px, largura mínima efetiva do Chrome headless usado.
 
 ## 10. Histórico consolidado
 
@@ -242,6 +277,17 @@ Estado validado em 24 de julho de 2026:
 - LinkedIn sem promessa falsa de scraping;
 - atualização de segurança do React Router.
 
+### 27/07/2026 — demonstração interativa para recrutadores
+
+- navegação pública orientada à avaliação do portfólio;
+- demo com estado local e ações funcionais;
+- área Por trás do projeto com stack e links para o código;
+- login público substituído por aviso seguro quando não há backend configurado;
+- landing sem cadastro, planos ou promessa de SaaS;
+- lazy loading por rota e metadados públicos;
+- atualização do PostCSS vulnerável;
+- implementação realizada sobre o baseline `4a92772`; commit de entrega ainda não criado.
+
 ## 11. Decisões já tomadas
 
 - O projeto é portfólio e ferramenta pessoal, não SaaS comercial.
@@ -255,24 +301,34 @@ Estado validado em 24 de julho de 2026:
 
 ## 12. Limitações conhecidas
 
-- A demo geral ainda contém dados visuais estáticos identificados como mock.
-- Login e dashboard privado não funcionam em um Netlify exclusivamente estático sem backend configurado.
+- A demo usa dados ilustrativos e estado temporário; ela reproduz os fluxos, mas não executa provedores, banco ou integrações reais.
+- Login e dashboard permanecem privados. No Netlify estático, as rotas de autenticação mostram o aviso e encaminham à demo.
+- `/pricing` existe apenas como redirecionamento legado para `/como-funciona`.
+- O site Applymize ainda não foi criado ou vinculado no Netlify.
+- GitHub ainda não possui CI, homepage, tópicos, URL pública ou apresentação atualizada no campo de descrição.
+- Não há testes automatizados do frontend ou do motor ATS público.
+- O `npm audit` registra duas ocorrências altas do mesmo advisory de CSRF no modo RSC do React Router. A aplicação é uma SPA client-side e não usa RSC/actions; não há versão atual sem conflito com advisories anteriores.
+- A auditoria Python ainda registra dependências vulneráveis que precisam de atualização com regressão de uploads e autenticação.
+- PostgreSQL, Redis, Evolution, API e frontend locais estão publicados em todas as interfaces; segredos JWT e Evolution ainda usam valores de exemplo.
+- JobSpy/Google sofre bloqueios HTTP 429 frequentes e torna a automação pouco eficiente.
 - O ATS público usa heurísticas próprias e não representa todos os fornecedores de ATS.
 - PDF com texto convertido em imagem pode exigir OCR, que não está implementado no navegador.
 - Checkout e billing não processam pagamentos reais.
 - O painel Recruiter privado é demonstrativo e não é um ATS empresarial.
 - O build contém chunks grandes dos leitores PDF/DOCX, carregados sob demanda.
 
-## 13. Próximos passos opcionais
+## 13. Próximos passos recomendados
 
-Somente executar se houver pedido do proprietário:
+Somente executar mudanças ou publicação com pedido do proprietário:
 
-1. confirmar visualmente o deploy final do Netlify;
-2. adicionar URL pública e screenshots ao README;
-3. otimizar code splitting do frontend;
-4. ampliar o dicionário de cargos/famílias após novos casos reais;
-5. criar testes automatizados do motor ATS público;
-6. atualizar este caderno após novas mudanças materiais.
+1. proteger o ambiente local: trocar segredos de exemplo e restringir portas internas;
+2. criar e vincular o site Netlify ao GitHub, sem expor o backend;
+3. validar visualmente o deploy e adicionar a URL ao README e GitHub;
+4. atualizar dependências Python com regressão de uploads e autenticação;
+5. criar CI e testes automatizados do motor ATS público;
+6. corrigir cooldown e eficiência do JobSpy diante de HTTP 429;
+9. adicionar SEO, autoria, contato e metadados sociais;
+10. otimizar code splitting e compatibilidade futura.
 
 ## 14. Procedimento para futuras sessões
 
@@ -297,6 +353,7 @@ Depois de uma mudança material:
 
 - Visão pública: `README.md`
 - Operação local: `SETUP.md`
+- Auditoria atual: `docs/AUDIT_2026-07-27.md`
 - Auditoria anterior: `docs/AUDIT_2026-07-15.md`
 - Rotas frontend: `frontend/src/App.tsx`
 - Elegibilidade: `backend/services/job_eligibility_filter.py`
@@ -306,4 +363,3 @@ Depois de uma mudança material:
 - ATS público: `frontend/src/services/publicAtsEngine.ts`
 - Automação: `backend/services/automation_scheduler.py`
 - Netlify: `netlify.toml`
-

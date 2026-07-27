@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useEffect, useMemo, useState } fr
 import { UserMe } from "../types";
 import { login as loginApi, logout as logoutApi, me as meApi, register as registerApi, RegisterPayload } from "../services/auth";
 import { clearTokens, getAccessToken, getRefreshToken, setTokens } from "../services/tokenStorage";
+import { hasPrivateBackendAccess } from "../services/api";
 
 type AuthContextValue = {
   user: UserMe | null;
@@ -20,6 +21,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function reloadUser() {
+    if (!hasPrivateBackendAccess()) {
+      setUser(null);
+      return;
+    }
     const token = getAccessToken();
     if (!token) {
       setUser(null);

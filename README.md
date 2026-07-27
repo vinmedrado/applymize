@@ -11,22 +11,23 @@ O projeto reúne descoberta de vagas, filtro de relevância, matching, análise 
 - Ingestão de vagas em múltiplos provedores.
 - Regras explicáveis de relevância, elegibilidade e matching.
 - Processamento de currículo em PDF, DOCX e TXT.
-- Interface responsiva com áreas públicas e autenticadas.
+- Interface responsiva com área autenticada privada e demonstração pública interativa.
 - Automação agendada e integração pessoal com WhatsApp.
 - Testes de regressão para problemas encontrados em uso real.
 
-O frontend público foi desenhado para permitir que uma pessoa recrutadora entenda o sistema sem precisar acessar o ambiente privado.
+O frontend público foi desenhado para permitir que uma pessoa recrutadora navegue pelos principais fluxos, execute ações de teste e entenda a arquitetura sem precisar acessar o ambiente privado.
 
 ## Experiência pública
 
 | Rota | Finalidade |
 |---|---|
 | `/` | Apresentação do projeto e dos recursos |
-| `/como-funciona` | Explicação visual do pipeline e da arquitetura |
+| `/como-funciona` | Arquitetura, pipeline, decisões, limites e evidências no código |
 | `/laboratorio-ats` | Experimento ATS real executado no navegador |
 | `/linkedin-analyzer` | Demonstração transparente da análise de LinkedIn |
-| `/demo` | Showcase visual do ecossistema |
-| `/pricing` | Demonstração visual dos planos |
+| `/demo` | Produto interativo com vagas, matching, candidaturas, ATS, perfil e automações |
+
+A demo usa dados ilustrativos e estado temporário no navegador. Busca, salvar vaga, candidatura, avanço de pipeline, otimização de perfil e controles de automação podem ser testados sem login ou backend.
 
 O laboratório ATS aceita PDF, DOCX, TXT ou texto colado, compara o currículo com um cargo ou uma vaga e apresenta estrutura, clareza, experiência, senioridade, palavras-chave e aderência. Todo o processamento dessa página acontece localmente no navegador.
 
@@ -70,12 +71,12 @@ Cada execução preserva o provedor e o termo que originou a descoberta para fac
 ## Transparência: real, demonstração e privado
 
 - O **laboratório ATS público** é real, determinístico e processado localmente.
-- A **página Como funciona** representa o pipeline implementado no projeto.
-- O **showcase visual** utiliza dados ilustrativos quando indicado na tela.
+- A página **Por trás do projeto** representa o pipeline implementado e leva às evidências no repositório.
+- A **demo interativa** utiliza dados ilustrativos, identificados na tela e descartados ao recarregar.
 - A **área autenticada** depende do backend local e do banco de dados.
+- Login, cadastro e recuperação de senha publicados exibem um aviso de ambiente privado e levam à demo.
 - O LinkedIn **não é coletado por scraping de URL**. O usuário fornece PDF, DOCX, TXT ou texto.
 - O botão público de WhatsApp abre uma mensagem preenchida; não envia nada automaticamente.
-- Checkout e planos são demonstrações e não processam pagamentos reais.
 
 ## Rodando localmente
 
@@ -112,7 +113,9 @@ O arquivo [`netlify.toml`](netlify.toml) configura:
 - Node.js 22;
 - headers básicos de segurança.
 
-As páginas públicas não precisam do backend. Para conectar também as áreas privadas, configure no Netlify:
+As páginas públicas não precisam do backend. O deploy de portfólio não deve receber `VITE_API_BASE_URL`; assim, acessos diretos às rotas de autenticação mostram a alternativa segura da demo.
+
+Para uma instalação privada que também hospede o backend, configure:
 
 ```env
 VITE_API_BASE_URL=https://endereco-https-do-backend
@@ -131,9 +134,10 @@ Na validação mais recente:
 - 123 testes de backend aprovados;
 - TypeScript/lint aprovado;
 - build de produção aprovado;
-- auditoria npm sem vulnerabilidades conhecidas;
+- PostCSS atualizado para corrigir a vulnerabilidade de leitura de source map;
+- auditoria npm registra duas ocorrências altas no React Router, ligadas ao modo RSC não utilizado por esta SPA;
 - upload e extração de PDF validados no navegador;
-- rotas públicas e responsividade mobile validadas.
+- rotas públicas e responsividade validadas em Chrome headless.
 
 ## Bugs reais corrigidos
 
