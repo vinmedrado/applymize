@@ -78,7 +78,7 @@ A página também informa o que é funcional, local, demonstrativo e futuro. Des
 
 ### `/demo`
 
-Demonstração pública interativa, sem login e sem backend.
+Demonstração pública interativa, sem login e sem exposição do backend pessoal. Apenas a consulta de IA usa uma função serverless pública e isolada.
 
 Permite testar no navegador:
 
@@ -86,11 +86,29 @@ Permite testar no navegador:
 - salvar vagas e iniciar uma candidatura;
 - avançar etapas do pipeline;
 - executar o motor ATS público real;
+- fazer uma consulta real à Applymize IA com um crédito de demonstração;
 - otimizar headline e skills de um perfil ilustrativo;
 - ativar, pausar e executar uma automação simulada;
 - simular a conexão do canal de WhatsApp.
 
-Os dados são explicitamente ilustrativos e o estado é descartado ao recarregar a página. A demonstração não acessa banco, contas, provedores ou integrações pessoais.
+Os dados são explicitamente ilustrativos e o estado funcional é descartado ao recarregar a página. A demonstração não acessa banco, contas, provedores ou integrações pessoais. A pergunta feita à IA é enviada à Groq e a resposta fica preservada no `localStorage` do visitante para não oferecer um segundo crédito.
+
+#### Applymize IA pública
+
+Adicionada em 27 de julho de 2026 no commit `3e1d101`.
+
+- acesso direto por `/demo?view=ai`;
+- pergunta livre de até 500 caracteres e sugestões prontas para recrutadores;
+- contexto fixo composto apenas por fatos públicos do projeto;
+- função `frontend/netlify/functions/portfolio-ai.mjs`;
+- chave `GROQ_API_KEY` somente no runtime da Netlify;
+- modelo padrão de produção `openai/gpt-oss-120b`, hospedado na Groq;
+- raciocínio interno excluído da resposta e saída limitada;
+- validação de método, origem e tamanho;
+- rate limit de uma invocação por IP/domínio em 24 horas;
+- resultado salvo somente no navegador do visitante.
+
+Essa função não chama a API FastAPI, não consulta banco e não possui acesso ao perfil ou às integrações pessoais.
 
 ### `/laboratorio-ats`
 
@@ -209,11 +227,12 @@ O frontend público está preparado pelo `netlify.toml`:
 - base `frontend`;
 - comando `npm run build`;
 - publicação `dist`;
+- diretório de functions `frontend/netlify/functions`;
 - Node 22;
 - rewrite `/* → /index.html`;
 - headers básicos.
 
-As páginas públicas funcionam sem backend. No host público, rotas de login, cadastro e recuperação de senha exibem um aviso de ambiente privado com acesso à demo e à documentação técnica.
+As páginas públicas funcionam sem o backend pessoal. A única exceção é a função serverless mínima da Applymize IA. No host público, rotas de login, cadastro e recuperação de senha exibem um aviso de ambiente privado com acesso à demo e à documentação técnica.
 
 Para usar login e recursos privados em uma hospedagem pública, seria necessário configurar `VITE_API_BASE_URL`. Isso não é necessário para o objetivo atual de portfólio.
 
@@ -268,6 +287,16 @@ Validação adicional da experiência pública em 27 de julho de 2026, commit `9
 - descrição, homepage e tópicos públicos do repositório GitHub atualizados.
 - integração contínua GitHub → Netlify validada após correção da deploy key somente leitura.
 
+Validação da Applymize IA pública em 27 de julho de 2026, commit `3e1d101`:
+
+- TypeScript/lint aprovado;
+- build Vite de produção aprovado;
+- build Netlify aprovado com empacotamento da função `portfolio-ai.mjs`;
+- segredo `GROQ_API_KEY` configurado somente para functions no contexto de produção;
+- `npm audit` permaneceu com as duas ocorrências já documentadas do advisory RSC não utilizado;
+- `git diff --check` aprovado;
+- `docs/prints-sistema/` preservado fora do commit.
+
 ## 10. Histórico consolidado
 
 ### `dc8d11b` — baseline auditado
@@ -306,10 +335,20 @@ Validação adicional da experiência pública em 27 de julho de 2026, commit `9
 - atualização do PostCSS vulnerável;
 - site de produção criado em `https://applymize.netlify.app`.
 
+### `3e1d101` — IA pública com crédito para recrutadores
+
+- nova aba Applymize IA na demonstração;
+- consulta real por função serverless sem exposição do backend pessoal;
+- contexto limitado a evidências públicas do projeto;
+- um crédito na interface e rate limit na borda;
+- segredo do provedor restrito ao runtime da Netlify;
+- explicação visual do fluxo cliente → função → Groq.
+
 ## 11. Decisões já tomadas
 
 - O projeto é portfólio e ferramenta pessoal, não SaaS comercial.
 - Não expor o backend pessoal apenas para tornar a demonstração pública.
+- Permitir IA pública somente por função serverless mínima, sem banco ou acesso ao backend pessoal.
 - Priorizar transparência sobre recursos reais e mockados.
 - Manter o laboratório ATS inteiramente no navegador.
 - Não implementar scraping de URL do LinkedIn.
@@ -320,6 +359,8 @@ Validação adicional da experiência pública em 27 de julho de 2026, commit `9
 ## 12. Limitações conhecidas
 
 - A demo usa dados ilustrativos e estado temporário; ela reproduz os fluxos, mas não executa provedores, banco ou integrações reais.
+- A consulta pública de IA depende da disponibilidade e dos limites da Netlify e da Groq.
+- O crédito não representa identidade verificada: `localStorage` preserva o uso no navegador e o rate limit protege por IP/domínio em 24 horas. Redes corporativas compartilhadas podem dividir o mesmo limite.
 - Login e dashboard permanecem privados. No Netlify estático, as rotas de autenticação mostram o aviso e encaminham à demo.
 - `/pricing` existe apenas como redirecionamento legado para `/como-funciona`.
 - GitHub ainda não possui workflow próprio de CI; a integração Netlify executa o build do frontend.
@@ -342,8 +383,8 @@ Somente executar mudanças ou publicação com pedido do proprietário:
 2. atualizar dependências Python com regressão de uploads e autenticação;
 3. criar CI e testes automatizados do motor ATS público;
 4. corrigir cooldown e eficiência do JobSpy diante de HTTP 429;
-9. adicionar SEO, autoria, contato e metadados sociais;
-10. otimizar code splitting e compatibilidade futura.
+5. adicionar SEO, autoria, contato e metadados sociais;
+6. otimizar code splitting e compatibilidade futura.
 
 ## 14. Procedimento para futuras sessões
 

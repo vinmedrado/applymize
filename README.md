@@ -14,6 +14,7 @@ O projeto reúne descoberta de vagas, filtro de relevância, matching, análise 
 - Regras explicáveis de relevância, elegibilidade e matching.
 - Processamento de currículo em PDF, DOCX e TXT.
 - Interface responsiva com área autenticada privada e demonstração pública interativa.
+- IA contextual pública em função serverless, com um crédito de demonstração por visitante.
 - Automação agendada e integração pessoal com WhatsApp.
 - Testes de regressão para problemas encontrados em uso real.
 
@@ -27,9 +28,10 @@ O frontend público foi desenhado para permitir que uma pessoa recrutadora naveg
 | `/como-funciona` | Arquitetura, pipeline, decisões, limites e evidências no código |
 | `/laboratorio-ats` | Experimento ATS real executado no navegador |
 | `/linkedin-analyzer` | Demonstração transparente da análise de LinkedIn |
-| `/demo` | Produto interativo com vagas, matching, candidaturas, ATS, perfil e automações |
+| `/demo` | Produto interativo com IA, vagas, matching, candidaturas, ATS, perfil e automações |
+| `/demo?view=ai` | Acesso direto à consulta real da Applymize IA para recrutadores |
 
-A demo usa dados ilustrativos e estado temporário no navegador. Busca, salvar vaga, candidatura, avanço de pipeline, otimização de perfil e controles de automação podem ser testados sem login ou backend.
+A demo usa dados ilustrativos e estado temporário no navegador. Busca, salvar vaga, candidatura, avanço de pipeline, otimização de perfil e controles de automação podem ser testados sem login ou backend pessoal. A aba Applymize IA oferece uma consulta real, limitada, usando apenas o contexto público do projeto; a chave do provedor permanece protegida em uma função serverless da Netlify.
 
 O laboratório ATS aceita PDF, DOCX, TXT ou texto colado, compara o currículo com um cargo ou uma vaga e apresenta estrutura, clareza, experiência, senioridade, palavras-chave e aderência. Todo o processamento dessa página acontece localmente no navegador.
 
@@ -113,13 +115,14 @@ O arquivo [`netlify.toml`](netlify.toml) configura:
 - diretório base `frontend`;
 - build `npm run build`;
 - publicação de `frontend/dist`;
+- função serverless isolada para a consulta pública de IA;
 - fallback SPA para rotas diretas;
 - Node.js 22;
 - headers básicos de segurança.
 
 O projeto Netlify está conectado ao repositório `vinmedrado/applymize`; pushes na branch `main` disparam novos builds do frontend.
 
-As páginas públicas não precisam do backend. O deploy de portfólio não deve receber `VITE_API_BASE_URL`; assim, acessos diretos às rotas de autenticação mostram a alternativa segura da demo.
+As páginas públicas não precisam do backend pessoal. O deploy de portfólio não deve receber `VITE_API_BASE_URL`; assim, acessos diretos às rotas de autenticação mostram a alternativa segura da demo. Apenas a aba Applymize IA chama `/api/portfolio-ai`, função pública mínima que acessa a Groq com `GROQ_API_KEY` configurada como segredo de runtime na Netlify.
 
 Para uma instalação privada que também hospede o backend, configure:
 
