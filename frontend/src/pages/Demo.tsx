@@ -37,11 +37,12 @@ import {
   Wifi,
 } from "lucide-react";
 import { BrandLogo } from "../components/BrandLogo";
+import { PortfolioAIPanel } from "../components/demo/PortfolioAIPanel";
 import { MatchProgress } from "../components/ScoreVisual";
 import { useToast } from "../context/ToastContext";
 import { analyzePublicResume, LocalAtsAnalysis } from "../services/publicAtsEngine";
 
-type DemoView = "overview" | "jobs" | "applications" | "ats" | "profile" | "automation";
+type DemoView = "overview" | "ai" | "jobs" | "applications" | "ats" | "profile" | "automation";
 
 type DemoJob = {
   id: number;
@@ -73,6 +74,7 @@ const demoViews: Array<{
   icon: typeof LayoutDashboard;
 }> = [
   { id: "overview", label: "Visão geral", helper: "Resumo do produto", icon: LayoutDashboard },
+  { id: "ai", label: "Applymize IA", helper: "1 consulta real", icon: Bot },
   { id: "jobs", label: "Vagas & match", helper: "Busca e priorização", icon: BriefcaseBusiness },
   { id: "applications", label: "Candidaturas", helper: "Pipeline pessoal", icon: ClipboardCheck },
   { id: "ats", label: "ATS real", helper: "Motor no navegador", icon: FileSearch },
@@ -260,9 +262,14 @@ function OverviewPanel({
               Explore a jornada completa. As ações funcionam no navegador e mostram o comportamento do produto sem acessar contas, banco ou integrações pessoais.
             </p>
           </div>
-          <button type="button" onClick={() => onNavigate("jobs")} className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950">
-            Começar pelas vagas <ArrowRight className="ml-2 h-4 w-4" />
-          </button>
+          <div className="grid gap-2">
+            <button type="button" onClick={() => onNavigate("ai")} className="inline-flex items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950">
+              Testar Applymize IA <Sparkles className="ml-2 h-4 w-4" />
+            </button>
+            <button type="button" onClick={() => onNavigate("jobs")} className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-black text-white">
+              Explorar vagas <ArrowRight className="ml-2 h-4 w-4" />
+            </button>
+          </div>
         </div>
       </section>
 
@@ -763,7 +770,9 @@ function AutomationPanel({
 
 export function Demo() {
   const toast = useToast();
-  const [activeView, setActiveView] = useState<DemoView>("overview");
+  const requestedView = new URLSearchParams(window.location.search).get("view");
+  const initialView = demoViews.some((view) => view.id === requestedView) ? requestedView as DemoView : "overview";
+  const [activeView, setActiveView] = useState<DemoView>(initialView);
   const [jobs, setJobs] = useState(initialJobs);
   const [applications, setApplications] = useState(initialApplications);
   const [automationEnabled, setAutomationEnabled] = useState(true);
@@ -874,11 +883,12 @@ export function Demo() {
               <p className="mt-0.5 font-black">{activeMeta.label}</p>
             </div>
             <div className="hidden items-center gap-2 text-xs font-bold text-slate-500 sm:flex">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" /> Sem login · sem backend · sem dados pessoais
+              <ShieldCheck className="h-4 w-4 text-emerald-600" /> Sem login · backend pessoal protegido · dados ilustrativos
             </div>
           </div>
 
           {activeView === "overview" && <OverviewPanel jobs={jobs} applications={applications} automationEnabled={automationEnabled} onNavigate={setActiveView} />}
+          {activeView === "ai" && <PortfolioAIPanel />}
           {activeView === "jobs" && <JobsPanel jobs={jobs} onSearch={simulateSearch} onToggleSave={toggleSave} onApply={applyToJob} />}
           {activeView === "applications" && <ApplicationsPanel applications={applications} onAdvance={advanceApplication} />}
           {activeView === "ats" && <AtsPanel />}
