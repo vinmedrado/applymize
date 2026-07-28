@@ -4,7 +4,7 @@
 
 **Última atualização:** 27 de julho de 2026
 **Branch principal:** `main`  
-**Último commit funcional registrado:** `eb16c60`  
+**Último commit funcional registrado:** `e0e30d1`
 **Natureza do projeto:** portfólio full-stack e ferramenta de uso pessoal  
 
 ## 1. O que é o Applymize
@@ -296,6 +296,16 @@ Validação da Applymize IA pública em 27 de julho de 2026, commit `3e1d101`:
 - `npm audit` permaneceu com as duas ocorrências já documentadas do advisory RSC não utilizado;
 - `git diff --check` aprovado;
 - `docs/prints-sistema/` preservado fora do commit.
+
+Validação final em produção em 27 de julho de 2026, deploy do commit `e0e30d1`:
+
+- deploy de produção em estado `ready`, com a função `portfolio-ai` e a rota `/api/portfolio-ai` publicadas;
+- regra de uma requisição por IP/domínio em 180 segundos confirmada nos metadados da função;
+- consulta real ponta a ponta aprovada com HTTP 200, resposta da Groq e modelo `openai/gpt-oss-120b`;
+- configuração da função alinhada à sintaxe canônica da Netlify: a ação de bloqueio HTTP 429 é o padrão quando `action` é omitida;
+- build Netlify de produção aprovado, incluindo TypeScript, Vite e empacotamento da função;
+- `git diff --check` aprovado;
+- `docs/prints-sistema/` permaneceu fora do commit.
 
 ## 10. Histórico consolidado
 
