@@ -4,7 +4,7 @@
 
 **Última atualização:** 28 de julho de 2026
 **Branch principal:** `main`  
-**Último commit funcional registrado:** `30acc2b`
+**Último commit funcional registrado:** `c272828`
 **Natureza do projeto:** portfólio full-stack e ferramenta de uso pessoal  
 
 ## 1. O que é o Applymize
@@ -308,7 +308,7 @@ Validação final em produção em 27 de julho de 2026, deploy do commit `e0e30d
 - `git diff --check` aprovado;
 - `docs/prints-sistema/` permaneceu fora do commit.
 
-Correção da experiência pública em 28 de julho de 2026:
+Correção da experiência pública em 28 de julho de 2026, commit `0af2b1b`:
 
 - Applymize IA removida da navegação por abas da demo;
 - consulta pública movida para um balão flutuante equivalente ao usado na área privada;
@@ -319,7 +319,7 @@ Correção da experiência pública em 28 de julho de 2026:
 - layout aberto inspecionado em Chrome headless no desktop e no breakpoint móvel efetivo do ambiente;
 - `docs/prints-sistema/` preservado fora das alterações.
 
-Separação corrigida entre frontend local e portfólio público em 28 de julho de 2026:
+Separação corrigida entre frontend local e portfólio público em 28 de julho de 2026, commit `c272828`:
 
 - a rota `/` no localhost, loopback, IP de rede local ou host `.local` redireciona para `/dashboard`;
 - sem sessão privada válida, o fluxo protegido encaminha para `/login`;
@@ -328,7 +328,9 @@ Separação corrigida entre frontend local e portfólio público em 28 de julho 
 - a distinção reutiliza `hasPrivateBackendAccess()` e não expõe nem publica o backend pessoal;
 - TypeScript/lint e build Vite de produção aprovados;
 - localhost validado em Chrome headless com perfil sem sessão, redirecionando da raiz para o login privado;
-- container frontend reiniciado para limpar o cache antigo do grafo de módulos do Vite.
+- container frontend reiniciado para limpar o cache antigo do grafo de módulos do Vite;
+- deploy Netlify do commit `c272828` em estado `ready`;
+- landing pública da Netlify reinspecionada em Chrome headless e preservada para recrutadores.
 
 ## 10. Histórico consolidado
 
@@ -377,11 +379,17 @@ Separação corrigida entre frontend local e portfólio público em 28 de julho 
 - segredo do provedor mantido no ambiente da Netlify e fora do bundle público;
 - explicação visual do fluxo cliente → função → Groq.
 
-### Experiência flutuante da IA pública — 28 de julho de 2026
+### `0af2b1b` — experiência flutuante da IA pública
 
 - aba dedicada substituída pelo mesmo padrão de balão flutuante usado no sistema privado;
 - consulta, resposta preservada e crédito único mantidos sem ampliar o acesso ao backend;
 - link direto da IA adaptado para abrir o chat sobre a visão geral.
+
+### `c272828` — separação entre uso pessoal e portfólio
+
+- raiz local direcionada ao dashboard/login privado;
+- raiz da Netlify mantida como landing pública para recrutadores;
+- cache antigo do Vite local identificado e limpo com reinício isolado do frontend.
 
 ## 11. Decisões já tomadas
 
