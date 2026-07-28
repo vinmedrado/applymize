@@ -2,9 +2,9 @@
 
 > Fonte de memória permanente para desenvolvimento, auditorias e futuras conversas.
 
-**Última atualização:** 27 de julho de 2026
+**Última atualização:** 28 de julho de 2026
 **Branch principal:** `main`  
-**Último commit funcional registrado:** `e0e30d1`
+**Último commit funcional registrado:** `30acc2b`
 **Natureza do projeto:** portfólio full-stack e ferramenta de uso pessoal  
 
 ## 1. O que é o Applymize
@@ -97,7 +97,8 @@ Os dados são explicitamente ilustrativos e o estado funcional é descartado ao 
 
 Adicionada em 27 de julho de 2026 no commit `3e1d101`.
 
-- acesso direto por `/demo?view=ai`;
+- balão flutuante presente em toda a demo, seguindo a experiência visual da área privada;
+- acesso direto por `/demo?view=ai`, que abre o balão automaticamente;
 - pergunta livre de até 500 caracteres e sugestões prontas para recrutadores;
 - contexto fixo composto apenas por fatos públicos do projeto;
 - função `frontend/netlify/functions/portfolio-ai.mjs`;
@@ -307,6 +308,17 @@ Validação final em produção em 27 de julho de 2026, deploy do commit `e0e30d
 - `git diff --check` aprovado;
 - `docs/prints-sistema/` permaneceu fora do commit.
 
+Correção da experiência pública em 28 de julho de 2026:
+
+- Applymize IA removida da navegação por abas da demo;
+- consulta pública movida para um balão flutuante equivalente ao usado na área privada;
+- janela responsiva em tela cheia no celular e painel no canto inferior direito no desktop;
+- sugestões prontas, pergunta livre, estado de carregamento, resposta e crédito preservado no novo chat;
+- `/demo?view=ai` mantido como acesso direto, agora abrindo o balão sobre a visão geral;
+- TypeScript/lint e build Vite de produção aprovados;
+- layout aberto inspecionado em Chrome headless no desktop e no breakpoint móvel efetivo do ambiente;
+- `docs/prints-sistema/` preservado fora das alterações.
+
 ## 10. Histórico consolidado
 
 ### `dc8d11b` — baseline auditado
@@ -353,6 +365,12 @@ Validação final em produção em 27 de julho de 2026, deploy do commit `e0e30d
 - um crédito na interface e rate limit na borda;
 - segredo do provedor mantido no ambiente da Netlify e fora do bundle público;
 - explicação visual do fluxo cliente → função → Groq.
+
+### Experiência flutuante da IA pública — 28 de julho de 2026
+
+- aba dedicada substituída pelo mesmo padrão de balão flutuante usado no sistema privado;
+- consulta, resposta preservada e crédito único mantidos sem ampliar o acesso ao backend;
+- link direto da IA adaptado para abrir o chat sobre a visão geral.
 
 ## 11. Decisões já tomadas
 
@@ -427,5 +445,6 @@ Depois de uma mudança material:
 - Ingestão: `backend/services/job_ingestion.py`
 - ATS privado: `backend/services/ats_analyzer.py`
 - ATS público: `frontend/src/services/publicAtsEngine.ts`
+- IA pública: `frontend/src/components/demo/PortfolioAIFloatingAssistant.tsx`
 - Automação: `backend/services/automation_scheduler.py`
 - Netlify: `netlify.toml`
