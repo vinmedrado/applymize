@@ -319,6 +319,17 @@ Correção da experiência pública em 28 de julho de 2026:
 - layout aberto inspecionado em Chrome headless no desktop e no breakpoint móvel efetivo do ambiente;
 - `docs/prints-sistema/` preservado fora das alterações.
 
+Separação corrigida entre frontend local e portfólio público em 28 de julho de 2026:
+
+- a rota `/` no localhost, loopback, IP de rede local ou host `.local` redireciona para `/dashboard`;
+- sem sessão privada válida, o fluxo protegido encaminha para `/login`;
+- a rota `/` na Netlify continua exibindo a landing voltada a recrutadores;
+- demo, ATS público e documentação técnica permanecem acessíveis por suas rotas próprias;
+- a distinção reutiliza `hasPrivateBackendAccess()` e não expõe nem publica o backend pessoal;
+- TypeScript/lint e build Vite de produção aprovados;
+- localhost validado em Chrome headless com perfil sem sessão, redirecionando da raiz para o login privado;
+- container frontend reiniciado para limpar o cache antigo do grafo de módulos do Vite.
+
 ## 10. Histórico consolidado
 
 ### `dc8d11b` — baseline auditado
@@ -375,6 +386,7 @@ Correção da experiência pública em 28 de julho de 2026:
 ## 11. Decisões já tomadas
 
 - O projeto é portfólio e ferramenta pessoal, não SaaS comercial.
+- A rota raiz deve abrir o sistema pessoal em ambiente local e a landing de portfólio somente no host público sem backend.
 - Não expor o backend pessoal apenas para tornar a demonstração pública.
 - Permitir IA pública somente por função serverless mínima, sem banco ou acesso ao backend pessoal.
 - Priorizar transparência sobre recursos reais e mockados.

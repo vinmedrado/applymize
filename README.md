@@ -102,6 +102,8 @@ API Docs: http://localhost:8001/docs
 Health:   http://localhost:8001/health
 ```
 
+No ambiente local, a rota raiz abre a área privada de uso pessoal e encaminha ao login quando necessário. A landing de portfólio na rota raiz é exibida somente no host público sem backend configurado, como a Netlify.
+
 Os containers usam `restart: unless-stopped`. Depois da primeira execução, voltam com o Docker Desktop desde que não tenham sido removidos com `docker compose down`.
 
 Instruções operacionais completas estão em [`SETUP.md`](SETUP.md).

@@ -48,7 +48,7 @@ export default function App() {
               <Route path="/login" element={privateBackendAvailable ? <Login /> : <PrivateAccessNotice />} />
               <Route path="/register" element={privateBackendAvailable ? <Register /> : <PrivateAccessNotice />} />
               <Route path="/reset-password" element={privateBackendAvailable ? <ResetPassword /> : <PrivateAccessNotice />} />
-              <Route path="/" element={<Landing />} />
+              <Route path="/" element={privateBackendAvailable ? <Navigate to="/dashboard" replace /> : <Landing />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/pricing" element={<Navigate to="/como-funciona" replace />} />
               <Route path="/linkedin-analyzer" element={<LinkedInAnalyzer />} />
