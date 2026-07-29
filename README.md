@@ -59,7 +59,7 @@ Python, FastAPI, PostgreSQL, React, Vite, TypeScript, Docker Compose, Selenium, 
 
 ## GIF
 
-TODO: gravar um GIF curto com busca de vaga, scoring ATS e avanco de candidatura no Kanban.
+![Applymize demo](assets/demo/demo.gif)
 
 ## Screenshots
 
