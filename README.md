@@ -1,37 +1,39 @@
 # Applymize
 
-Plataforma autoral de inteligencia de carreira criada como portfolio full-stack e ferramenta de uso pessoal.
-
-O projeto reune descoberta de vagas, filtro de relevancia, matching, analise ATS, acompanhamento de candidaturas, automacoes e alertas em uma experiencia construida com FastAPI, PostgreSQL, React, Vite e Docker Compose.
-
-[Site publico](https://applymize.netlify.app)
-
 ## Visao geral
 
-Applymize organiza o fluxo de candidatura em uma unica experiencia: encontrar vagas, avaliar aderencia, acompanhar status e apoiar proximos passos com automacao e IA contextual.
+Plataforma autoral de inteligencia de carreira criada como portfolio full-stack e ferramenta de uso pessoal. O projeto reune descoberta de vagas, filtro de relevancia, matching, analise ATS, acompanhamento de candidaturas, automacoes e alertas.
 
-## Problema que resolve
+## Problema
 
 - Busca manual em multiplas plataformas.
 - Falta de criterio consistente para relevancia e matching.
 - Curriculos e vagas avaliados sem contexto.
 - Acompanhamento de candidaturas disperso.
 
+## Solucao
+
+Applymize organiza o fluxo de candidatura em uma unica experiencia: encontrar vagas, avaliar aderencia, acompanhar status e apoiar proximos passos com automacao e IA contextual.
+
+[Site publico](https://applymize.netlify.app)
+
 ## Arquitetura
 
-```text
-frontend/      interface publica e privada
-backend/       API, autenticacao e servicos
-automation/    automacoes e integracoes
-intelligence/  scoring, ATS e contexto de IA
-docs/          branding e documentacao
-tests/         testes de regressao
+```mermaid
+flowchart TD
+  U[Usuario] --> F[Frontend React]
+  F --> A[FastAPI]
+  A --> D[PostgreSQL]
+  A --> I[Intelligence / ATS]
+  A --> AU[Automation]
+  AU --> N[WhatsApp / Alerts]
+  I --> S[Scoring / Matching]
+  D --> T[Tracking / History]
 ```
 
-## Screenshots
+## Tecnologias
 
-![Brand board](docs/branding/applymize_brand_board.png)
-![Portfolio screenshot](https://raw.githubusercontent.com/vinmedrado/portfolio/main/images/applymize.jpg)
+Python, FastAPI, PostgreSQL, React, Vite, TypeScript, Docker Compose, Selenium, Groq API.
 
 ## Funcionalidades
 
@@ -41,11 +43,20 @@ tests/         testes de regressao
 - Demo publica interativa.
 - IA contextual em funcao serverless.
 - Auto-candidatura e funil Kanban persistente.
-- Integração pessoal com WhatsApp.
+- Integracao pessoal com WhatsApp.
 
-## Tecnologias
+## Demonstração
 
-Python, FastAPI, PostgreSQL, React, Vite, TypeScript, Docker Compose, Selenium, Groq API.
+- Demo publica: [applymize.netlify.app](https://applymize.netlify.app)
+- Laboratorio ATS: rota publica da demo
+
+## GIF
+
+TODO: gravar um GIF curto com busca de vaga, scoring ATS e avanco de candidatura no Kanban.
+
+## Screenshots
+
+![Applymize](assets/demo/overview.jpg)
 
 ## Como executar
 
@@ -71,13 +82,28 @@ automation/    automacoes
 intelligence/  scoring e IA
 docs/          branding e documentacao
 tests/         testes automatizados
+assets/demo/   screenshots e GIFs
 ```
 
 ## Roadmap
 
-- Adicionar mais evidencias visuais no README.
+- Adicionar GIFs curtos das jornadas principais.
 - Expandir explicabilidade de matching e ATS.
 - Evoluir observabilidade das automacoes.
+
+## Principais aprendizados
+
+- Arquitetura em camadas
+- APIs REST
+- Docker
+- PostgreSQL
+- Machine Learning
+- FastAPI
+- React
+- Clean Architecture
+- Design Patterns
+- Automacoes
+- Engenharia de Dados
 
 ## Licenca
 

@@ -1,8 +1,14 @@
-# Applymize Branding
+# Branding
 
-Este patch adiciona a primeira identidade visual do Applymize ao sistema.
+Este diretório concentra os ativos de identidade visual do Applymize.
 
-## Assets adicionados
+## Objetivo
+
+- manter consistencia visual entre telas;
+- centralizar marcas, favicon e variações do logo;
+- servir como base para o brand board e futuras evoluções.
+
+## Assets
 
 - `frontend/src/assets/brand/applymize-mark.svg`
 - `frontend/src/assets/brand/applymize-mark-light.svg`
@@ -10,14 +16,14 @@ Este patch adiciona a primeira identidade visual do Applymize ao sistema.
 - `frontend/public/favicon.svg`
 - `docs/branding/applymize_brand_board.png`
 
-## Onde o logo foi aplicado
+## Uso
 
-- Sidebar principal
-- Login
-- Cadastro
-- Redefinição de senha
-- Applymize IA
-- Favicon do navegador
+- sidebar principal;
+- login;
+- cadastro;
+- redefinição de senha;
+- módulo Applymize IA;
+- favicon do navegador.
 
 ## Paleta base
 
@@ -25,4 +31,9 @@ Este patch adiciona a primeira identidade visual do Applymize ao sistema.
 - Roxo: `#7C3AED`
 - Navy: `#0F172A`
 - Slate: `#64748B`
-- Background: `#F8FAFC`
+- Fundo: `#F8FAFC`
+
+## TODO
+
+- validar contraste final em telas escuras e claras;
+- registrar variações oficiais para campanhas futuras.
