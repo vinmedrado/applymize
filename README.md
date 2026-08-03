@@ -52,7 +52,7 @@ Python, FastAPI, PostgreSQL, React, Vite, TypeScript, Docker Compose, Selenium, 
 - Auto-candidatura e funil Kanban persistente.
 - Integracao pessoal com WhatsApp.
 
-## Demonstração
+## Demonstracao
 
 - Demo publica: [applymize.netlify.app](https://applymize.netlify.app)
 - Laboratorio ATS: rota publica da demo
@@ -104,14 +104,11 @@ assets/demo/   screenshots e GIFs
 - APIs REST
 - Docker
 - PostgreSQL
-- Machine Learning
 - FastAPI
 - React
-- Clean Architecture
-- Design Patterns
 - Automacoes
 - Engenharia de Dados
 
 ## Licenca
 
-TODO.
+MIT.
