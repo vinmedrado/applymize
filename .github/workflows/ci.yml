@@ -42,3 +42,5 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+      - name: Audit production frontend dependencies
+        run: npm audit --omit=dev --audit-level=high
