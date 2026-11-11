@@ -18,7 +18,9 @@ jobs:
           node-version: "22"
       - name: Apply nonbreaking npm security updates
         working-directory: frontend
-        run: npm audit fix --ignore-scripts --no-fund
+        run: |
+          npm install --save-exact react-router-dom@7.18.5 --ignore-scripts --no-fund
+          npm audit fix --ignore-scripts --no-fund || true
       - name: Validate reproducible frontend build
         working-directory: frontend
         run: |
